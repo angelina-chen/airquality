@@ -88,3 +88,41 @@ class DataSet:
             self._data = data_list
             print(f"{len(data_list)} lines loaded.")
             self._initialize_labels()
+
+
+    def load_default_data(self):
+        """Load sample data into self._data."""
+        self._data = [
+            ("12345", "Morning", 1.1),
+            ("94022", "Morning", 2.2),
+            ("94040", "Morning", 3.0),
+            ("94022", "Midday", 1.0),
+            ("94040", "Morning", 1.0),
+            ("94022", "Evening", 3.2)]
+
+        self._initialize_labels()
+
+    def _cross_table_statistics(self, descriptor_one: str,
+                                descriptor_two: str):
+        """
+        Given a label from each category, calculate summary
+        statistics for the items matching both labels.
+
+        Keyword arguments:
+            descriptor_one -- the label for the first category
+            descriptor_two -- the label for the second category
+
+        Returns a tuple of min, average, max from the matching rows.
+        """
+
+        if self._data is None:
+            raise EmptyDatasetError
+        my_list = [item[2] for item in self._data if item[0] == descriptor_one
+                   and item[1] == descriptor_two]
+        if len(my_list) == 0:
+            raise NoMatchingItems
+        else:
+            tuple_of_floats = (round(float(sum(my_list) / len(my_list)), 2),
+                               round(float(min(my_list)), 2),
+                               round(float(max(my_list)), 2))
+            return tuple_of_floats
