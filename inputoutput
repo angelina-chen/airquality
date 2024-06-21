@@ -46,3 +46,31 @@ class DataSet:
             self._zips[item[0]] = True
             times_of_day_set.add(item[1])
         self._times = list(times_of_day_set)
+
+    @property
+    def header(self):
+        """Return the value of the _header property."""
+        return self._header
+
+    @header.setter
+    def header(self, header):
+        """Set the value of the _header property."""
+        if len(header) <= 30:
+            self._header = header
+        else:
+            raise ValueError
+
+    def get_zips(self):
+        """Return a copy of self._zips."""
+        copied_zips = self._zips.copy()
+        return copied_zips
+
+    def toggle_zip(self, target_zip: str):
+        """Toggle a zip code between True and False."""
+        if target_zip in self._zips:
+            if self._zips[target_zip] is True:
+                self._zips[target_zip] = False
+            elif self._zips[target_zip] is False:
+                self._zips[target_zip] = True
+        else:
+            raise LookupError
