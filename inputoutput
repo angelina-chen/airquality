@@ -1,0 +1,11 @@
+from enum import Enum
+import csv
+
+filename = './purple_air.csv'
+
+
+class Stats(Enum):
+    """Provide a readable alternative to concentration calculations."""
+    AVG = 1
+    MIN = 2
+    MAX = 3
