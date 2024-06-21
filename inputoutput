@@ -74,3 +74,17 @@ class DataSet:
                 self._zips[target_zip] = True
         else:
             raise LookupError
+
+
+    def load_file(self):
+        """Load Purple Air data."""
+        with open(filename, 'r', newline="") as source:
+            csvreader = csv.reader(source)
+            data_list = []
+            for r in csvreader:
+                if r[0] != "Identifier":
+                    data_list.append((str(r[1]), str(r[4]),
+                                     round(float(r[5]), 2)))
+            self._data = data_list
+            print(f"{len(data_list)} lines loaded.")
+            self._initialize_labels()
