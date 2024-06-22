@@ -1,0 +1,62 @@
+
+def main():
+    """Run the PurpleAir database application."""
+    user_name = input("What is your name? ")
+    print("Hi " + user_name + "! Welcome to the air quality database.")
+    menu()
+
+
+def menu():
+    """
+    Call the print_menu() function. Obtain the user's menu choice. If
+    the input is not an integer, remind the user to enter a number the
+    next time.
+    """
+    print_menu()
+    option = input("Which option do you choose? ")
+    try:
+        int(option)
+    except ValueError:
+        print("Please enter a number next time.")
+
+
+def print_menu():
+    """Print the menu options."""
+    print("\nMain Menu \n1 - Print Average Particulate Concentration by Zip "
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip "
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip "
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
+          "Quit")
+
+
+if __name__ == "__main__":
+    main()
+
+r"""
+--- Sample Run #1 (Valid Input) ---
+What is your name? Angelina
+Hi Angelina! Welcome to the air quality database.
+
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 9
+
+--- Sample Run #2 (Invalid Input) ---
+What is your name? Angelina
+Hi Angelina! Welcome to the air quality database.
+
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? nine
+Please enter a number next time.
+"""
