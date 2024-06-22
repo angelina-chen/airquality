@@ -1,0 +1,53 @@
+
+from enum import Enum
+
+
+class Stats(Enum):
+    """Provide a readable alternative to concentration calculations."""
+    MIN = 1
+    AVG = 2
+    MAX = 3
+
+
+class EmptyDatasetError(Exception):
+    """
+    Error raised when a method relies on a non-empty dataset
+    but the dataset is empty.
+    """
+    pass
+
+
+class NoMatchingItems(Exception):
+    """
+    Error raised when there is no data at the requested row and
+    column.
+    """
+    pass
+
+
+def main():
+    """Run the PurpleAir database application."""
+    user_name = input("What is your name? ")
+    print("Hi " + user_name + "! Welcome to the air quality database.")
+    purple_air = DataSet()
+    while True:
+        try:
+            purple_air.header = input("Enter a header for the menu: ")
+        except ValueError:
+            continue
+        break
+    menu(purple_air)
+
+
+class DataSet:
+    """
+    The DataSet class will present summary tables based on
+    information imported from a .csv file.
+    """
+
+    def __init__(self, header=""):
+        """Construct the attributes of the purple_air object."""
+        self._data = None
+        self.header = header
+        self._zips = []
+        self._times = []
