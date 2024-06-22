@@ -72,6 +72,7 @@ class NoMatchingItems(Exception):
     pass
 
 
+
 def menu(my_dataset: DataSet):
     """Obtain the user's menu option choices."""
     while True:
@@ -80,3 +81,69 @@ def menu(my_dataset: DataSet):
         option = input("Which option do you choose? ")
         try:
             int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 9:
+            break
+        elif 1 <= int_option <= 5:
+            print("Option " + str(int_option) + " is not implemented yet!")
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+
+
+def print_menu():
+    """Print the menu options."""
+    print("Main Menu \n1 - Print Average Particulate Concentration by Zip"
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip"
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip"
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
+          "Quit")
+
+
+def unit_test():
+    """"Provide a unit test _cross_table_statistics."""
+    my_set = DataSet()
+    try:
+        my_set._cross_table_statistics("something", "fail")
+    except EmptyDatasetError:
+        print("Method Raises EmptyDataSet Error: Pass")
+    else:
+        print("Method Raises EmptyDataSet Error: Fail")
+    my_set.load_default_data()
+    try:
+        my_set._cross_table_statistics("94022", "Supper")
+        print("No Matching Rows Raises NoMatchingItems: Fail")
+    except NoMatchingItems:
+        print("No Matching Rows Raises NoMatchingItems: Pass")
+    except:
+        print("No Matching Rows Raises NoMatchingItems: Fail")
+    try:
+        my_set._cross_table_statistics("94023", "Night")
+        print("No Matching Rows Raises NoMatchingItems: Fail")
+    except NoMatchingItems:
+        print("No Matching Rows Raises NoMatchingItems: Pass")
+    except:
+        print("No Matching Rows Raises NoMatchingItems: Fail")
+    try:
+        my_set._cross_table_statistics("94040", "Night")
+        print("No Matching Rows Raises NoMatchingItems: Fail")
+    except NoMatchingItems:
+        print("No Matching Rows Raises NoMatchingItems: Pass")
+    except:
+        print("No Matching Rows Raises NoMatchingItems: Fail")
+    if my_set._cross_table_statistics("12345", "Morning") == (1.1, 1.1, 1.1):
+        print("One Matching Row Returns Correct Tuple: Pass")
+    else:
+        print("One Matching Row Returns Correct Tuple: Fail")
+    if my_set._cross_table_statistics("94040", "Morning") == (1.0, 2.0, 3.0):
+        print("Multiple Matching Rows Returns Correct Tuple: Pass")
+    else:
+        print("Multiple Matching Rows Returns Correct Tuple: Fail")
+        print(my_set._cross_table_statistics("94040", "Morning"))
+
+
+if __name__ == "__main__":
+    # main()
+    unit_test()
