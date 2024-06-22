@@ -63,6 +63,7 @@ def print_menu():
           "Quit")
 
 
+
 def unit_test():
     """Provide a unit test to investigate edge cases."""
     test_object1 = DataSet()
@@ -74,3 +75,16 @@ def unit_test():
     if test_object1.header == "":
         print("Testing constructor with no parameter supplied: Pass - verified"
               " that header is set to the empty string.")
+    else:
+        print("Testing constructor with no parameter supplied: Fail.")
+    if test_object2.header == "valid header":
+        print("Testing constructor with valid header argument: Pass - getter"
+              " returns the header that was set using the constructor.")
+    else:
+        print("Testing constructor with valid header argument: Fail.")
+    try:
+        test_object3.header = "header1header2header3header4header5"
+    except ValueError:
+        print("Testing constructor with invalid header argument: Pass - "
+              "attempt to create an object with an invalid header raised an "
+              "exception.")
