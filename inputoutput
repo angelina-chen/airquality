@@ -126,3 +126,28 @@ class DataSet:
                                round(float(min(my_list)), 2),
                                round(float(max(my_list)), 2))
             return tuple_of_floats
+
+    def display_cross_table(self, stat: Stats):
+        """ Given a stat from DataSet.Stats, produce a table that
+        shows the value of that stat for every pair of labels from the
+        two categories.
+        """
+
+        if not self._data:
+            print("Please load a dataset first.")
+            return
+        print()
+        print(f"{' ':7}", end="")
+        for item in self._times:
+            print(f"{item:>8}", end="")
+        print()
+        for item_one in self._zips:
+            print(f"{item_one:<7}", end="")
+            for item_two in self._times:
+                try:
+                    value = self._cross_table_statistics(item_one, item_two)[
+                        stat.value - 1]
+                    print(f"{value:>8.2f}", end="")
+                except NoMatchingItems:
+                    print(f"{'N/A':>8}", end="")
+            print()
