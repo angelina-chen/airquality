@@ -88,3 +88,18 @@ def unit_test():
         print("Testing constructor with invalid header argument: Pass - "
               "attempt to create an object with an invalid header raised an "
               "exception.")
+    else:
+        print("Testing constructor with invalid header argument: Fail.")
+    if test_object4.header == "still valid":
+        print("Testing setter with valid assignment: Pass - getter returned "
+              "the value that was set using the setter.")
+    else:
+        print("Testing setter with valid assignment: Fail.")
+    try:
+        test_object5.header = "invalid header invalid header invalid header"
+    except ValueError:
+        print("Testing setter with invalid assignment: Pass - Exception was "
+              "raised and the previously set header is unchanged.")
+    else:
+        print("Testing setter with invalid assignment: Fail")
+
