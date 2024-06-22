@@ -1,0 +1,76 @@
+def main():
+    """Run the PurpleAir database application."""
+    unit_test()
+    user_name = input("What is your name? ")
+    print("Hi " + user_name + "! Welcome to the air quality database.")
+    purple_air = DataSet()
+    while True:
+        try:
+            purple_air.header = input("Enter a header for the menu: ")
+        except ValueError:
+            continue
+        break
+    menu(purple_air)
+
+
+class DataSet:
+    """Represent the PurpleAir dataset."""
+    def __init__(self, header=""):
+        """Construct the attributes of the purple_air object."""
+        self._data = None
+        self.header = header
+
+    @property
+    def header(self):  # this is your getter
+        """Get the current header."""
+        return self._header
+
+    @header.setter
+    def header(self, header):
+        """Set the current header if it is 30 words or fewer."""
+        if len(header) <= 30:
+            self._header = header
+        else:
+            raise ValueError
+
+
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    while True:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 9:
+            break
+        elif 1 <= int_option <= 5:
+            print("Option " + str(int_option) + " is not implemented yet!")
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+
+
+def print_menu():
+    """Print the menu options."""
+    print("Main Menu \n1 - Print Average Particulate Concentration by Zip"
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip"
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip"
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
+          "Quit")
+
+
+def unit_test():
+    """Provide a unit test to investigate edge cases."""
+    test_object1 = DataSet()
+    test_object2 = DataSet(header="valid header")
+    test_object3 = DataSet()
+    test_object4 = DataSet()
+    test_object4.header = "still valid"
+    test_object5 = DataSet()
+    if test_object1.header == "":
+        print("Testing constructor with no parameter supplied: Pass - verified"
+              " that header is set to the empty string.")
