@@ -42,3 +42,16 @@ class DataSet:
         my_list = [self._data[2][i] for i, ele in enumerate(self._data[2]) if
                    self._data[0][i] == descriptor_one and self._data[1][i] ==
                    descriptor_two]
+        if len(my_list) == 0:
+            raise NoMatchingItems
+        else:
+            tuple_of_floats = (float(min(my_list)),
+                               float(sum(my_list) / len(my_list)),
+                               float(max(my_list)))
+            return tuple_of_floats
+
+    def load_default_data(self):
+        """Provide a default dataset."""
+        zip_code = ("12345", "94022", "94040", "94022", "94040", "94022")
+        time_of_day = ("Morning", "Morning", "Morning", "Midday", "Morning",
+                       "Evening")
