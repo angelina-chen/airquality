@@ -1,0 +1,44 @@
+
+def main():
+    """Run the PurpleAir database application."""
+    user_name = input("What is your name? ")
+    print("Hi " + user_name + "! Welcome to the air quality database.")
+    purple_air = DataSet()
+    while True:
+        try:
+            purple_air.header = input("Enter a header for the menu: ")
+        except ValueError:
+            continue
+        break
+    menu(purple_air)
+
+
+class DataSet:
+    """Represent the PurpleAir dataset."""
+
+    def __init__(self, header=""):
+        """Construct the attributes of the purple_air object."""
+        self._data = None
+        self.header = header
+
+    @property
+    def header(self):  # this is your getter
+        """Get the current header."""
+        return self._header
+
+    @header.setter
+    def header(self, header):
+        """Set the current header if it is 30 words or fewer."""
+        if len(header) <= 30:
+            self._header = header
+        else:
+            raise ValueError
+
+    def _cross_table_statistics(self, descriptor_one: str,
+                                descriptor_two: str):
+        """Calculate relevant information about concentration."""
+        if self._data is None:
+            raise EmptyDatasetError
+        my_list = [self._data[2][i] for i, ele in enumerate(self._data[2]) if
+                   self._data[0][i] == descriptor_one and self._data[1][i] ==
+                   descriptor_two]
