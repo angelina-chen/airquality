@@ -1,0 +1,170 @@
+def main():
+    """Run the PurpleAir database application."""
+    user_name = input("What is your name? ")
+    print("Hi " + user_name + "! Welcome to the air quality database.")
+    purple_air = DataSet()
+    purple_air._header = input("Enter a header for the menu: ")
+    menu(purple_air)
+
+
+class DataSet:
+    """Represent the PurpleAir dataset."""
+    def __init__(self, header=""):
+        """Construct the attributes of the purple_air object."""
+        self._data = None
+        self._header = header
+
+
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    while True:
+        print(f"\n{my_dataset._header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 9:
+            break
+        elif 1 <= int_option <= 5:
+            print("Option " + str(int_option) + " is not implemented yet!")
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+
+
+def print_menu():
+    """Print the menu options."""
+    print("Main Menu \n1 - Print Average Particulate Concentration by Zip "
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip "
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip "
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
+          "Quit")
+
+
+if __name__ == "__main__":
+    main()
+
+r"""
+--- Sample Run #1 -----------------------------------------------------
+What is your name? Angelina
+Hi Angelina! Welcome to the air quality database.
+Enter a header for the menu: Air Quality Info
+
+Air Quality Info
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+Option 1 is not implemented yet!
+
+Air Quality Info
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 6.5
+Please enter a valid number next time.
+
+Air Quality Info
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? idk
+Please enter a valid number next time.
+
+Air Quality Info
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 9
+Goodbye! Thanks for using the database.
+
+--- Sample Run #2 -----------------------------------------------------
+What is your name? Angelina
+Hi Angelina! Welcome to the air quality database.
+Enter a header for the menu: Better Air
+
+Better Air
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+Option 1 is not implemented yet!
+
+Better Air
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 135
+Sorry, that selection is invalid.
+
+Better Air
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 6
+Sorry, that selection is invalid.
+
+Better Air
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? air
+Please enter a valid number next time.
+
+Better Air
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 5/4
+Please enter a valid number next time.
+
+Better Air
+Main Menu 
+1 - Print Average Particulate Concentration by Zip Code and Time 
+2 - Print Minimum Particulate Concentration by Zip Code and Time 
+3 - Print Maximum Particulate Concentration by Zip Code and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 9
+Goodbye! Thanks for using the database.
+"""
