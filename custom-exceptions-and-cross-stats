@@ -55,3 +55,28 @@ class DataSet:
         zip_code = ("12345", "94022", "94040", "94022", "94040", "94022")
         time_of_day = ("Morning", "Morning", "Morning", "Midday", "Morning",
                        "Evening")
+
+class EmptyDatasetError(Exception):
+    """
+    Raise a custom exception when a method is asked to do calculation on
+    the dataset, but no data is loaded.
+    """
+    pass
+
+
+class NoMatchingItems(Exception):
+    """
+    Raise a custom exception when _cross_table_statistics (below) does
+    not find any data that matches both descriptors.
+    """
+    pass
+
+
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    while True:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
