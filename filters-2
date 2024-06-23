@@ -135,3 +135,15 @@ class DataSet:
                              self._zips[item] is True}
             print()
             print(f"{space:>5}", end="")
+            for item in self._times:
+                print(f"{item:>19}", end="")
+            print()
+            filtered_zips = dict(filtered_zips)
+            for key in filtered_zips:
+                filtered_zips[key] = True
+            for item1 in filtered_zips:
+                print(f"{item1}", end="")
+                for item2 in self._times:
+                    ele = 0
+                    print(f"{space * 16 * (ele + 1)}", end="")
+                    ele += 1
