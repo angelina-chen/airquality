@@ -51,3 +51,100 @@ class DataSet:
         self.header = header
         self._zips = []
         self._times = []
+
+
+    def _initialize_labels(self):
+        """Create a list from the data with no duplicates."""
+        zip_code_set = set(self._zips)
+        times_of_day_set = set(self._times)
+        for item in self._data:
+            zip_code_set.add(item[0])
+            times_of_day_set.add(item[1])
+        pass
+        self._zips = list(zip_code_set)
+        self._times = list(times_of_day_set)
+
+    @property
+    def header(self):  # this is your getter
+        """Return the value of the _header property."""
+        return self._header
+
+    @header.setter
+    def header(self, header):
+        """Set the value of the _header property."""
+        if len(header) <= 30:
+            self._header = header
+        else:
+            raise ValueError
+
+    def load_default_data(self):
+        """Load sample data into self._data."""
+
+        self._data = [
+            ("12345", "Morning", 1.1),
+            ("94022", "Morning", 2.2),
+            ("94040", "Morning", 3.0),
+            ("94022", "Midday", 1.0),
+            ("94040", "Morning", 1.0),
+            ("94022", "Evening", 3.2)]
+
+        self._initialize_labels()
+
+    def _cross_table_statistics(self, descriptor_one: str,
+                                descriptor_two: str):
+        """
+        Given a label from each category, calculate summary
+        statistics for the items matching both labels.
+
+        Keyword arguments:
+            descriptor_one -- the label for the first category
+            descriptor_two -- the label for the second category
+
+        Returns a tuple of min, average, max from the matching rows.
+        """
+
+        if self._data is None:
+            raise EmptyDatasetError
+        my_list = [item[2] for item in self._data if item[0] == descriptor_one
+                   and item[1] == descriptor_two]
+        if len(my_list) == 0:
+            raise NoMatchingItems
+        else:
+            tuple_of_floats = (float(min(my_list)),
+                               float(sum(my_list) / len(my_list)),
+                               float(max(my_list)))
+            return tuple_of_floats
+
+
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    while True:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 9:
+            break
+        elif 1 <= int_option <= 5:
+            print("Option " + str(int_option) + " is not implemented yet!")
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+
+
+def print_menu():
+    """Print the menu options."""
+    print("Main Menu \n1 - Print Average Particulate Concentration by Zip"
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip"
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip"
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
+          "Quit")
+
+
+def unit_test_incomplete():
+    """Provide a unit test for edge cases."""
+    my_dataset = DataSet()
