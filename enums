@@ -149,15 +149,6 @@ def unit_test_incomplete():
     """Provide a unit test for edge cases."""
     my_dataset = DataSet()
 
-
-def display_cross_table(self, stat: Stats):
-        """Display a table of statistics."""
-        space = " "
-        if self._data is None:
-            print("Please load data.")
-       else:
-            print(f"{space:>5}", end="")
-
 if __name__ == "__main__":
     # main()
     unit_test_incomplete()
@@ -172,3 +163,7 @@ The following Times of Day are loaded:
 Evening
 Midday
 Morning
+The MIN for 94040, Morning is 1.0
+The AVG for 94040, Morning is 2.0
+The MAX for 94040, Morning is 3.0
+"""
