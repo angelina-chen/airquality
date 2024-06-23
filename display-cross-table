@@ -124,3 +124,9 @@ class DataSet:
             for item in self._times:
                 print(f"{item:>19}", end="")
             print()
+            for item1 in self._zips:
+                print(f"{item1}", end="")
+                for item2 in self._times:
+                    ele = 0
+                    print(f"{space * 16 * (ele + 1)}", end="")
+                    ele += 1
