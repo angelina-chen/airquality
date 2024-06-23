@@ -1,0 +1,122 @@
+from enum import Enum
+
+
+class Stats(Enum):
+    """Provide a readable alternative to concentration calculations."""
+    AVG = 1
+    MIN = 2
+    MAX = 3
+
+
+class EmptyDatasetError(Exception):
+    """
+    Error raised when a method relies on a non-empty dataset
+    but the dataset is empty.
+    """
+    pass
+
+
+class NoMatchingItems(Exception):
+    """
+    Error raised when there is no data at the requested row and
+    column.
+    """
+    pass
+
+
+def main():
+    """Run the PurpleAir database application."""
+    user_name = input("What is your name? ")
+    print("Hi " + user_name + "! Welcome to the air quality database.")
+    purple_air = DataSet()
+    while True:
+        try:
+            purple_air.header = input("Enter a header for the menu: ")
+        except ValueError:
+            continue
+        break
+    menu(purple_air)
+
+
+class DataSet:
+    """
+    The DataSet class will present summary tables based on
+    information imported from a .csv file.
+    """
+
+    def __init__(self, header=""):
+        """Construct the attributes of the purple_air object."""
+        self._data = None
+        self.header = header
+        self._zips = {}
+        self._times = []
+
+    def _initialize_labels(self):
+        """Create a list from the data with no duplicates."""
+        self._zips = {}
+        times_of_day_set = set(self._times)
+        for item in self._data:
+            self._zips[item[0]] = True
+            times_of_day_set.add(item[1])
+        pass
+        self._times = list(times_of_day_set)
+
+    @property
+    def header(self):  # this is your getter
+        """Return the value of the _header property."""
+        return self._header
+
+    @header.setter
+    def header(self, header):
+        """Set the value of the _header property."""
+        if len(header) <= 30:
+            self._header = header
+        else:
+            raise ValueError
+
+    def load_default_data(self):
+        """Load sample data into self._data."""
+
+        self._data = [
+            ("12345", "Morning", 1.1),
+            ("94022", "Morning", 2.2),
+            ("94040", "Morning", 3.0),
+            ("94022", "Midday", 1.0),
+            ("94040", "Morning", 1.0),
+            ("94022", "Evening", 3.2)]
+
+        self._initialize_labels()
+
+    def _cross_table_statistics(self, descriptor_one: str,
+                                descriptor_two: str):
+        """
+        Given a label from each category, calculate summary
+        statistics for the items matching both labels.
+
+        Keyword arguments:
+            descriptor_one -- the label for the first category
+            descriptor_two -- the label for the second category
+
+        Returns a tuple of min, average, max from the matching rows.
+        """
+
+        if self._data is None:
+            raise EmptyDatasetError
+        my_list = [item[2] for item in self._data if item[0] == descriptor_one
+                   and item[1] == descriptor_two]
+        if len(my_list) == 0:
+            raise NoMatchingItems
+        else:
+            tuple_of_floats = (float(sum(my_list) / len(my_list)),
+                               float(min(my_list)),
+                               float(max(my_list)))
+            return tuple_of_floats
+
+    def display_cross_table(self, stat: Stats):
+        """Display a table of statistics."""
+        space = " "
+        if self._data is None:
+            print("Please load data.")
+        else:
+            filtered_zips = {item: True for item in self._zips if
+                             self._zips[item] is True}
