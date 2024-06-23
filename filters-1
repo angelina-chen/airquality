@@ -120,3 +120,63 @@ class DataSet:
         else:
             filtered_zips = {item: True for item in self._zips if
                              self._zips[item] is True}
+            print(f"{space:>5}", end="")
+            for item in self._times:
+                print(f"{item:>19}", end="")
+            print()
+            self._zips = dict(filtered_zips)
+            for key in self._zips:
+                self._zips[key] = True
+            for item1 in self._zips:
+                print(f"{item1}", end="")
+                for item2 in self._times:
+                    ele = 0
+                    print(f"{space * 16 * (ele + 1)}", end="")
+                    ele += 1
+                    try:
+                        stats_ret = self._cross_table_statistics(item1, item2)
+                        print(f"{stats_ret[stat.value - 1]:>2}", end="")
+                    except NoMatchingItems:
+                        print(f"N/A", end="")
+                print()
+            print()
+
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    while True:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 9:
+            break
+        elif int_option == 1:
+            my_dataset.display_cross_table(Stats.AVG)
+        elif int_option == 2:
+            my_dataset.display_cross_table(Stats.MIN)
+        elif int_option == 3:
+            my_dataset.display_cross_table(Stats.MAX)
+        elif int_option == 4:
+            print("Option " + str(int_option) + " is not implemented yet!")
+        elif int_option == 5:
+            my_dataset.load_default_data()
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+
+
+def print_menu():
+    """Print the menu options."""
+    print("Main Menu \n1 - Print Average Particulate Concentration by Zip"
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip"
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip"
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
+          "Quit")
+
+
+def unit_test():
+    """Provide a unit test to test edge cases."""
