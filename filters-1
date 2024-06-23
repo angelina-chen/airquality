@@ -180,3 +180,11 @@ def print_menu():
 
 def unit_test():
     """Provide a unit test to test edge cases."""
+    my_dataset = DataSet()
+    my_dataset.load_default_data()
+    my_dataset.display_cross_table(Stats.MIN)
+    my_dataset._zips["94022"] = False
+    my_dataset.display_cross_table(Stats.MIN)
+    my_dataset._zips["12345"] = False
+    my_dataset._zips["94040"] = False
+    my_dataset.display_cross_table(Stats.MIN)
