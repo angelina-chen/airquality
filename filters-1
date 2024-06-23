@@ -74,19 +74,6 @@ class DataSet:
         else:
             raise ValueError
 
-    def load_default_data(self):
-        """Load sample data into self._data."""
-
-        self._data = [
-            ("12345", "Morning", 1.1),
-            ("94022", "Morning", 2.2),
-            ("94040", "Morning", 3.0),
-            ("94022", "Midday", 1.0),
-            ("94040", "Morning", 1.0),
-            ("94022", "Evening", 3.2)]
-
-        self._initialize_labels()
-
     def _cross_table_statistics(self, descriptor_one: str,
                                 descriptor_two: str):
         """
@@ -111,6 +98,7 @@ class DataSet:
                                float(min(my_list)),
                                float(max(my_list)))
             return tuple_of_floats
+            print()
 
     def display_cross_table(self, stat: Stats):
         """Display a table of statistics."""
@@ -161,7 +149,7 @@ def menu(my_dataset: DataSet):
         elif int_option == 3:
             my_dataset.display_cross_table(Stats.MAX)
         elif int_option == 4:
-            print("Option " + str(int_option) + " is not implemented yet!")
+            print("Option " + str(int_option) + " is not implemented yet! Coming soon.")
         elif int_option == 5:
             my_dataset.load_default_data()
         else:
@@ -188,3 +176,21 @@ def unit_test():
     my_dataset._zips["12345"] = False
     my_dataset._zips["94040"] = False
     my_dataset.display_cross_table(Stats.MIN)
+
+
+if __name__ == "__main__":
+    unit_test()
+
+r"""
+--- Sample Run #1 -----------------------------------------------------
+                 Morning            Evening             Midday
+12345                1.1                N/A                N/A
+94022                2.2                3.2                1.0
+94040                1.0                N/A                N/A
+
+                 Morning            Evening             Midday
+12345                1.1                N/A                N/A
+94040                1.0                N/A                N/A
+
+                 Morning            Evening             Midday
+"""
