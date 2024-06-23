@@ -137,3 +137,145 @@ class DataSet:
                         print(f"N/A", end="")
                 print()
 
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    while True:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 9:
+            break
+        elif int_option == 1:
+            my_dataset.display_cross_table(Stats.AVG)
+        elif int_option == 2:
+            my_dataset.display_cross_table(Stats.MIN)
+        elif int_option == 3:
+            my_dataset.display_cross_table(Stats.MAX)
+        elif int_option == 4:
+            print("Option " + str(int_option) + " is not implemented yet!")
+        elif int_option == 5:
+            my_dataset.load_default_data()
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+
+
+def print_menu():
+    """Print the menu options."""
+    print("Main Menu \n1 - Print Average Particulate Concentration by Zip"
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip"
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip"
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
+          "Quit")
+
+
+def unit_test_incomplete():
+    """Provide a unit test for edge cases."""
+    my_dataset = DataSet()
+    my_dataset.load_default_data()
+    print("The following Zip Codes are loaded:")
+    for zip_code in my_dataset._zips:
+        print(zip_code)
+    print("The following Times of Day are loaded:")
+    for time_of_day in my_dataset._times:
+        print(time_of_day)
+    my_zip = "94040"
+    my_time = "Morning"
+    data_tuple = my_dataset._cross_table_statistics(my_zip, my_time)
+    for item in Stats:
+        print(f"The {item.name} for {my_zip}, {my_time} is "
+              f"{data_tuple[item.value - 1]}")
+
+
+if __name__ == "__main__":
+    main()
+
+r"""
+--- Sample Run #1 -----------------------------------------------------
+What is your name? angelina
+Hi angelina! Welcome to the air quality database.
+Enter a header for the menu: heading
+
+heading
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+Please load data.
+
+heading
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 5
+
+heading
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+                 Evening            Morning             Midday
+12345                N/A                1.1                N/A
+94022                3.2                2.2                1.0
+94040                N/A                2.0                N/A
+
+heading
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 2
+                 Evening            Morning             Midday
+12345                N/A                1.1                N/A
+94022                3.2                2.2                1.0
+94040                N/A                1.0                N/A
+
+heading
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 3
+                 Evening            Morning             Midday
+12345                N/A                1.1                N/A
+94022                3.2                2.2                1.0
+94040                N/A                3.0                N/A
+
+heading
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 9
+Goodbye! Thanks for using the database.
+
+Process finished with exit code 0
+
+"""
+
