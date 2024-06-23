@@ -164,3 +164,16 @@ def manage_filters(my_dataset: DataSet):
         print("\nThe following labels are in the dataset:")
         while True:
             my_zips = my_dataset.get_zips()
+            for ele, item in enumerate(my_zips):
+                mode = "ACTIVE" if my_zips[item] is True \
+                    else "INACTIVE"
+                print(f"{ele + 1}: {item}     {mode:<7}")
+            print()
+            toggle_select = input("Please select an item to toggle or press "
+                                  "enter/return when you are finished: ")
+            try:
+                int(toggle_select)
+                if int(toggle_select) in range(1, len(my_zips) + 1):
+                    ordered_zips = list(my_zips.keys())
+                    my_dataset.toggle_zip(ordered_zips[int(toggle_select) - 1])
+                    continue
