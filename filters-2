@@ -147,3 +147,20 @@ class DataSet:
                     ele = 0
                     print(f"{space * 16 * (ele + 1)}", end="")
                     ele += 1
+                    try:
+                        stats_ret = self._cross_table_statistics(item1, item2)
+                        print(f"{stats_ret[stat.value - 1]:>2}", end="")
+                    except NoMatchingItems:
+                        print(f"N/A", end="")
+                print()
+
+
+def manage_filters(my_dataset: DataSet):
+    """Filter the zip codes based on user input."""
+    if my_dataset.get_zips() == {}:
+        print("Please load a dataset first.")
+        menu(my_dataset)
+    else:
+        print("\nThe following labels are in the dataset:")
+        while True:
+            my_zips = my_dataset.get_zips()
