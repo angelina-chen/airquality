@@ -276,12 +276,13 @@ def collect_review():
 
 def print_menu():
     """Print the menu options."""
-    print("Main Menu \n1 - Print Average Particulate Concentration by Zip"
-          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip"
-          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip"
-          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
-          "Quit")
-
+    print("Main Menu")
+    print("1 - Print Average Particulate Concentration by Zip Code and Time")
+    print("2 - Print Minimum Particulate Concentration by Zip Code and Time")
+    print("3 - Print Maximum Particulate Concentration by Zip Code and Time")
+    print("4 - Adjust Zip Code Filters")
+    print("5 - Load Data")
+    print("6 - Check Air Quality Satisfactory Status")
 
 if __name__ == "__main__":
     main()
