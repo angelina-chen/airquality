@@ -151,3 +151,217 @@ class DataSet:
                 except NoMatchingItems:
                     print(f"{'N/A':>8}", end="")
             print()
+
+def manage_filters(my_dataset: DataSet):
+    """Filter the zip codes based on user input."""
+    if my_dataset.get_zips() == {}:
+        print("Please load a dataset first.")
+        menu(my_dataset)
+    else:
+        print("\nThe following labels are in the dataset:")
+        while True:
+            my_zips = my_dataset.get_zips()
+            for ele, item in enumerate(my_zips):
+                mode = "ACTIVE" if my_zips[item] is True \
+                    else "INACTIVE"
+                print(f"{ele + 1}: {item}     {mode:<7}")
+            print()
+            toggle_select = input("Please select an item to toggle or press "
+                                  "enter/return when you are finished: ")
+            try:
+                int(toggle_select)
+                if int(toggle_select) in range(1, len(my_zips) + 1):
+                    ordered_zips = list(my_zips.keys())
+                    my_dataset.toggle_zip(ordered_zips[int(toggle_select) - 1])
+                    continue
+            except ValueError:
+                if toggle_select == "":
+                    break
+            print("Bad user input: please select an item number.")
+        menu(my_dataset)
+
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    int_option = 0
+    while int_option != 10:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 1:
+            my_dataset.display_cross_table(Stats.AVG)
+        elif int_option == 2:
+            my_dataset.display_cross_table(Stats.MIN)
+        elif int_option == 3:
+            my_dataset.display_cross_table(Stats.MAX)
+        elif int_option == 4:
+            manage_filters(my_dataset)
+        elif int_option == 5:
+            my_dataset.load_file()
+        elif int_option == 9:
+            break
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+    quit()
+
+
+if __name__ == "__main__":
+    main()
+
+import unittest
+r"""
+--- Sample Run #1 -----------------------------------------------------
+What is your name? Angelina
+Hi Angelina! Welcome to the air quality database.
+Enter a header for the menu: Data for a cleaner world
+
+Data for a cleaner world
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+Please load a dataset first.
+
+Data for a cleaner world
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 5
+6147 lines loaded.
+
+Data for a cleaner world
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+
+         Midday   Night Morning Evening
+94028      2.92    1.58    1.54    2.26
+94304      2.89    1.23    1.36    1.17
+94022      2.92    1.32    1.50    1.22
+94024      3.27    1.69    1.71    3.42
+94040      3.28    2.47    1.86    4.57
+94087      3.92    2.31    2.24    4.77
+94041      3.52    3.43    2.41    4.53
+95014      3.29    2.19    1.06    2.38
+
+Data for a cleaner world
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 2
+
+         Midday   Night Morning Evening
+94028      0.00    0.00    0.00    0.00
+94304      0.00    0.00    0.00    0.00
+94022      0.00    0.00    0.00    0.00
+94024      0.00    0.00    0.00    0.00
+94040      0.00    0.00    0.00    0.00
+94087      0.00    0.00    0.00    0.00
+94041      0.00    0.00    0.00    0.00
+95014      0.00    0.00    0.00    0.00
+
+Data for a cleaner world
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 3
+
+         Midday   Night Morning Evening
+94028     24.21   25.00   25.72   79.88
+94304     20.93    9.92    9.66    9.73
+94022     26.59   14.38   12.90   11.53
+94024     29.17    9.67   15.12   37.57
+94040     25.95   20.34   10.49   44.05
+94087     26.48   13.14    9.39   38.11
+94041     25.89   19.67    8.02   31.82
+95014     25.00   37.82    9.95   69.05
+
+Data for a cleaner world
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 4
+
+The following labels are in the dataset:
+1: 94028     ACTIVE 
+2: 94304     ACTIVE 
+3: 94022     ACTIVE 
+4: 94024     ACTIVE 
+5: 94040     ACTIVE 
+6: 94087     ACTIVE 
+7: 94041     ACTIVE 
+8: 95014     ACTIVE 
+
+Please select an item to toggle or press enter/return when you are finished: 8
+1: 94028     ACTIVE 
+2: 94304     ACTIVE 
+3: 94022     ACTIVE 
+4: 94024     ACTIVE 
+5: 94040     ACTIVE 
+6: 94087     ACTIVE 
+7: 94041     ACTIVE 
+8: 95014     INACTIVE
+
+Please select an item to toggle or press enter/return when you are finished: 
+
+Data for a cleaner world
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 3
+
+         Midday   Night Morning Evening
+94028     24.21   25.00   25.72   79.88
+94304     20.93    9.92    9.66    9.73
+94022     26.59   14.38   12.90   11.53
+94024     29.17    9.67   15.12   37.57
+94040     25.95   20.34   10.49   44.05
+94087     26.48   13.14    9.39   38.11
+94041     25.89   19.67    8.02   31.82
+95014     25.00   37.82    9.95   69.05
+
+Data for a cleaner world
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 9
+Goodbye! Thanks for using the database.
+"""
