@@ -73,7 +73,7 @@ class NoMatchingItems(Exception):
 
 
 
-def menu(my_dataset: DataSet):
+def menu(my_dataset: DataSet, reviews: list):
     """Obtain the user's menu option choices."""
     while True:
         print(f"\n{my_dataset.header}")
@@ -84,13 +84,31 @@ def menu(my_dataset: DataSet):
         except ValueError:
             print("Please enter a valid number next time.")
             continue
-        if int_option == 9:
+        if int_option == 1:
+            my_dataset.display_cross_table(Stats.AVG)
+        elif int_option == 2:
+            my_dataset.display_cross_table(Stats.MIN)
+        elif int_option == 3:
+            my_dataset.display_cross_table(Stats.MAX)
+        elif int_option == 4:
+            manage_filters(my_dataset)
+        elif int_option == 5:
+            my_dataset.load_file()
+        elif int_option == 6:
+            print(my_dataset.is_air_quality_satisfactory(input("Enter the zip code to check air quality: ")))
+        elif int_option == 7:
+            reviews.append(collect_review())
+        elif int_option == 8:
+            print("Displaying all reviews:")
+            for review in reviews:
+                print(f"Rating: {review['rating']} - Review: {review['review']}")
+        elif int_option == 9:
             break
-        elif 1 <= int_option <= 5:
-            print("Option " + str(int_option) + " is not implemented yet!")
         else:
             print("Sorry, that selection is invalid.")
     print("Goodbye! Thanks for using the database.")
+    quit()
+
 
 
 def print_menu():
