@@ -177,3 +177,21 @@ def manage_filters(my_dataset: DataSet):
                     ordered_zips = list(my_zips.keys())
                     my_dataset.toggle_zip(ordered_zips[int(toggle_select) - 1])
                     continue
+            except ValueError:
+                if toggle_select == "":
+                    break
+            print("Bad user input: please select an item number.")
+        menu(my_dataset)
+
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    int_option = 0
+    while int_option != 9:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
