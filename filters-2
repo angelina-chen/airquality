@@ -27,15 +27,72 @@ class NoMatchingItems(Exception):
 def main():
     """Run the PurpleAir database application."""
     user_name = input("What is your name? ")
-    print("Hi " + user_name + "! Welcome to the air quality database.")
+    print(f"Hi {user_name}! Welcome to the air quality database.")
     purple_air = DataSet()
+    reviews = []
+    surveys = []
+
     while True:
         try:
             purple_air.header = input("Enter a header for the menu: ")
         except ValueError:
+            print("Header must be 30 characters or less. Please try again.")
             continue
         break
-    menu(purple_air)
+
+    while True:
+        menu(purple_air, reviews, surveys)
+
+
+def menu(my_dataset: DataSet, reviews: list, surveys: list):
+    """Obtain the user's menu option choices."""
+    while True:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 1:
+            my_dataset.display_cross_table(Stats.AVG)
+        elif int_option == 2:
+            my_dataset.display_cross_table(Stats.MIN)
+        elif int_option == 3:
+            my_dataset.display_cross_table(Stats.MAX)
+        elif int_option == 4:
+            manage_filters(my_dataset)
+        elif int_option == 5:
+            my_dataset.load_file()
+        elif int_option == 6:
+            print(my_dataset.is_air_quality_satisfactory(input("Enter the zip code to check air quality: ")))
+        elif int_option == 7:
+            reviews.append(collect_review())
+        elif int_option == 8:
+            print("Displaying all reviews:")
+            for review in reviews:
+                print(f"Rating: {review['rating']} - Review: {review['review']}")
+        elif int_option == 9:
+            survey_choice = input("Would you like to take a short survey? (yes/no) ").lower()
+            if survey_choice == "yes":
+                surveys.append(collect_survey())
+            else:
+                print("No problem! Returning to the main menu.")
+        elif int_option == 10:
+            print("Displaying all surveys:")
+            for survey in surveys:
+                print(f"Country: {survey['country']}, State/Province: {survey['state_province']}, Usual Weather: {survey['usual_weather']}")
+        elif int_option == 11:
+            random_number_game()
+        elif int_option == 12:
+            break
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+    quit()
+
+
 
 class DataSet:
     """
