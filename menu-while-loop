@@ -51,6 +51,17 @@ def collect_survey():
         "air_quality": air_quality
     }
 
+def random_number_game():
+    """
+    Play a random number guessing game with the user.
+    """
+    number_to_guess = random.randint(1, 5)
+    attempts = 0
+    print("Welcome to the Random Number Guessing Game!")
+    print("I'm thinking of a number between 1 and 5.")
+    while True:
+
+
 if __name__ == "__main__":
     main()
 
