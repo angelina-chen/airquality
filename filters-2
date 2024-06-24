@@ -167,7 +167,7 @@ def manage_filters(my_dataset: DataSet):
             for ele, item in enumerate(my_zips):
                 mode = "ACTIVE" if my_zips[item] is True \
                     else "INACTIVE"
-                print(f"{ele + 1}: {item}     {mode:<7}")
+                print(f"{ele + 1}:{item}{mode:<7}")
             print()
             toggle_select = input("Please select an item to toggle or press "
                                   "enter/return when you are finished: ")
@@ -180,7 +180,7 @@ def manage_filters(my_dataset: DataSet):
             except ValueError:
                 if toggle_select == "":
                     break
-            print("Bad user input: please select an item number.")
+            print("Invalid user input: please select an item number.")
         menu(my_dataset)
 
 def menu(my_dataset: DataSet):
@@ -195,3 +195,216 @@ def menu(my_dataset: DataSet):
         except ValueError:
             print("Please enter a valid number next time.")
             continue
+
+
+
+def print_menu():
+    """Print the menu options."""
+    print("Main Menu \n1 - Print Average Particulate Concentration by Zip"
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip"
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip"
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n9 - "
+          "Quit")
+
+
+if __name__ == "__main__":
+    main()
+
+r"""
+--- Sample Run #1 -----------------------------------------------------
+What is your name? Angelina
+Hi Angelina! Welcome to the air quality database.
+Enter a header for the menu: Almost Done!
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 4
+Please load a dataset first.
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 5
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+
+                 Evening            Morning             Midday
+12345                N/A                1.1                N/A
+94022                3.2                2.2                1.0
+94040                N/A                2.0                N/A
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 4
+
+The following labels are in the dataset:
+1: 12345     ACTIVE 
+2: 94022     ACTIVE 
+3: 94040     ACTIVE 
+
+Please select an item to toggle or press enter/return when you are finished: 1
+1: 12345     INACTIVE
+2: 94022     ACTIVE 
+3: 94040     ACTIVE 
+
+Please select an item to toggle or press enter/return when you are finished: 
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+
+                 Evening            Morning             Midday
+94022                3.2                2.2                1.0
+94040                N/A                2.0                N/A
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 4
+
+The following labels are in the dataset:
+1: 12345     INACTIVE
+2: 94022     ACTIVE 
+3: 94040     ACTIVE 
+
+Please select an item to toggle or press enter/return when you are finished: 2
+1: 12345     INACTIVE
+2: 94022     INACTIVE
+3: 94040     ACTIVE 
+
+Please select an item to toggle or press enter/return when you are finished: 3
+1: 12345     INACTIVE
+2: 94022     INACTIVE
+3: 94040     INACTIVE
+
+Please select an item to toggle or press enter/return when you are finished: 
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+
+                 Evening            Morning             Midday
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 4
+
+The following labels are in the dataset:
+1: 12345     INACTIVE
+2: 94022     INACTIVE
+3: 94040     INACTIVE
+
+Please select an item to toggle or press enter/return when you are finished: 1
+1: 12345     ACTIVE 
+2: 94022     INACTIVE
+3: 94040     INACTIVE
+
+Please select an item to toggle or press enter/return when you are finished: 
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 1
+
+                 Evening            Morning             Midday
+12345                N/A                1.1                N/A
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 4
+
+The following labels are in the dataset:
+1: 12345     ACTIVE 
+2: 94022     INACTIVE
+3: 94040     INACTIVE
+
+Please select an item to toggle or press enter/return when you are finished: 0
+Bad user input: please select an item number.
+1: 12345     ACTIVE 
+2: 94022     INACTIVE
+3: 94040     INACTIVE
+
+Please select an item to toggle or press enter/return when you are finished: 4
+Bad user input: please select an item number.
+1: 12345     ACTIVE 
+2: 94022     INACTIVE
+3: 94040     INACTIVE
+
+Please select an item to toggle or press enter/return when you are finished: a
+Bad user input: please select an item number.
+1: 12345     ACTIVE 
+2: 94022     INACTIVE
+3: 94040     INACTIVE
+
+Please select an item to toggle or press enter/return when you are finished: 
+
+Almost Done!
+Main Menu 
+1 - Print Average Particulate Concentration by ZipCode and Time 
+2 - Print Minimum Particulate Concentration by ZipCode and Time 
+3 - Print Maximum Particulate Concentration by ZipCode and Time 
+4 - Adjust Zip Code Filters 
+5 - Load Data 
+9 - Quit
+Which option do you choose? 9
+Goodbye! Thanks for using the database.
+"""
