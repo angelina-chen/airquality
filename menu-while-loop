@@ -41,14 +41,14 @@ def collect_survey():
     """
     country = input("What country are you from? ")
     state_province = input("What state/province/municipality are you from? ")
-    usual_weather = input("What is the weather normally like? ")
+    usual_weather = input("What is the air quality normally like? ")
 
     print("Thank you for participating in the survey!")
 
     return {
         "country": country,
         "state_province": state_province,
-        "usual_weather": usual_weather
+        "air_quality": air_quality
     }
 
 if __name__ == "__main__":
