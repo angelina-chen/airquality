@@ -210,6 +210,51 @@ class DataSet:
                         print(f"N/A", end="")
                 print()
 
+def is_air_quality_satisfactory(self, zip_code: str):
+    """
+    Determine if the air quality is satisfactory for a given zip code.
+    
+    Air quality is considered satisfactory if the average PM2.5 concentration
+    is in the "Good" category (0-12.0 µg/m³) according to the US AQI guidelines.
+    
+    Keyword arguments:
+        zip_code -- the zip code to check for air quality.
+    
+    Returns a string indicating if the air quality is satisfactory along with
+    recommendations if it is not.
+    """
+    if self._data is None:
+        raise EmptyDatasetError("Dataset is empty.")
+    if zip_code not in self._zips:
+        raise LookupError(f"Zip code {zip_code} not found in dataset.")
+    
+    pm25_values = [item[2] for item in self._data if item[0] == zip_code]
+    if not pm25_values:
+        raise NoMatchingItems(f"No data for zip code {zip_code}.")
+    
+    avg_pm25 = sum(pm25_values) / len(pm25_values)
+    
+    if avg_pm25 <= 12.0:
+        return f"The air quality in zip code {zip_code} is satisfactory (Good)."
+    elif avg_pm25 <= 35.4:
+        return (f"The air quality in zip code {zip_code} is Moderate. "
+                "Unusually sensitive people should consider reducing prolonged or heavy exertion.")
+    elif avg_pm25 <= 55.4:
+        return (f"The air quality in zip code {zip_code} is Unhealthy for Sensitive Groups. "
+                "Sensitive groups, such as people with respiratory or heart conditions, "
+                "children, and older adults, should limit prolonged outdoor exertion.")
+    elif avg_pm25 <= 150.4:
+        return (f"The air quality in zip code {zip_code} is Unhealthy. "
+                "Everyone may begin to experience health effects; members of sensitive groups "
+                "may experience more serious health effects. Limit outdoor activities.")
+    elif avg_pm25 <= 250.4:
+        return (f"The air quality in zip code {zip_code} is Very Unhealthy. "
+                "Health alert: everyone may experience more serious health effects. "
+                "Avoid outdoor activities and stay indoors as much as possible.")
+    else:
+        return (f"The air quality in zip code {zip_code} is Hazardous. "
+                "Health warning of emergency conditions: everyone is more likely to be affected. "
+                "Stay indoors, avoid physical activities outdoors, and consider using air purifiers.")
 
 def manage_filters(my_dataset: DataSet):
     """Filter the zip codes based on user input."""
