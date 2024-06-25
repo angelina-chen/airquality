@@ -328,6 +328,8 @@ def print_menu():
     print("4 - Adjust Zip Code Filters")
     print("5 - Load Data")
     print("6 - Check Air Quality Satisfactory Status")
+    print("7 -")
+    print("8 - ")
     continue
 
 
