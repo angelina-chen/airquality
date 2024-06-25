@@ -156,8 +156,7 @@ class DataSet:
 
         self._initialize_labels()
 
-    def _cross_table_statistics(self, descriptor_one: str,
-                                descriptor_two: str):
+    def _cross_table_statistics(self, descriptor_one: str, descriptor_two: str):
         """
         Given a label from each category, calculate summary
         statistics for the items matching both labels.
@@ -168,18 +167,13 @@ class DataSet:
 
         Returns a tuple of min, average, max from the matching rows.
         """
-
         if self._data is None:
-            raise EmptyDatasetError
-        my_list = [item[2] for item in self._data if item[0] == descriptor_one
-                   and item[1] == descriptor_two]
-        if len(my_list) == 0:
-            raise NoMatchingItems
-        else:
-            tuple_of_floats = (float(sum(my_list) / len(my_list)),
-                               float(min(my_list)),
-                               float(max(my_list)))
-            return tuple_of_floats
+            raise EmptyDatasetError("Dataset is empty.")
+        my_list = [item[2] for item in self._data if item[0] == descriptor_one and item[1] == descriptor_two]
+        if not my_list:
+            raise NoMatchingItems(f"No matching items for {descriptor_one} and {descriptor_two}.")
+        return round(min(my_list), 2), round(sum(my_list) / len(my_list), 2), round(max(my_list), 2)
+
 
     def display_cross_table(self, stat: Stats):
         """Display a table of statistics."""
