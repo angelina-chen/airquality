@@ -1,0 +1,34 @@
+# begin 3D visualization of PM2.5/PM10 particles 
+
+import py3Dmol
+import IPython.display as display
+
+def visualize_pm_particles():
+    """
+    Provide a 3D molecular visualization of PM2.5 and PM10 particles.
+    """
+
+    # Create a 3Dmol view
+    view = py3Dmol.view(width=800, height=600)
+
+    # Add PM2.5 particle visualization (represented as a sphere with a smaller radius)
+    pm2_5 = {'center': [0, 0, 0], 'radius': 1.25}  
+    view.addSphere(pm2_5, {'color': 'red', 'opacity': 0.6, 'wireframe': False}) 
+
+    # Add PM10 particle visualization (represented as a sphere with a larger radius)
+    pm10 = {'center': [3, 0, 0], 'radius': 5} 
+    view.addSphere(pm10, {'color': 'blue', 'opacity': 0.3, 'wireframe': False})
+
+    # Add labels to the particles
+    view.addLabel("PM2.5 Particle", {'position': [0, 0, 0], 'backgroundColor': 'white', 'fontColor': 'black'}) 
+    view.addLabel("PM10 Particle", {'position': [3, 0, 0], 'backgroundColor': 'white', 'fontColor': 'black'})  
+
+    # Set the background color to white
+    view.setBackgroundColor('white')
+
+    # Zoom to fit all shapes
+    view.zoomTo()
+
+    # Display the visualization
+    view.show() 
+    display.display(view)
