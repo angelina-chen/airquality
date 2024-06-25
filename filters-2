@@ -324,6 +324,8 @@ def print_menu():
     print("6 - Check Air Quality Satisfactory Status")
     print("7 -")
     print("8 - ")
+    print("9 - ")
+    print("10 - ")
     continue
 
 
