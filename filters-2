@@ -174,7 +174,6 @@ class DataSet:
             raise NoMatchingItems(f"No matching items for {descriptor_one} and {descriptor_two}.")
         return round(min(my_list), 2), round(sum(my_list) / len(my_list), 2), round(max(my_list), 2)
 
-
     def display_cross_table(self, stat: Stats):
         """ 
         Given a stat from DataSet.Stats, produce a table that
@@ -189,15 +188,12 @@ class DataSet:
         for item in self._times:
             print(f"{item:>8}", end="")
         print()
-        for item_one in self._zips:
-            if self._zips[item_one]:
-                print(f"{item_one:<7}", end="")
-                for item_two in self._times:
-                    try:
-                        value = self._cross_table_statistics(item_one, item_two)[stat.value - 1]
-                        print(f"{value:>8.2f}", end="")
-                    except NoMatchingItems:
-                        print(f"{'N/A':>8}", end="")
+        for item_two in self._times:
+            try:
+                value = self._cross_table_statistics(item_one, item_two)[stat.value - 1]
+                print(f"{value:>8.2f}", end="")
+            except NoMatchingItems:
+                print(f"{'N/A':>8}", end="")
                 print()
 
 def is_air_quality_satisfactory(self, zip_code: str):
