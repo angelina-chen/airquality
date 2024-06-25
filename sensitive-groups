@@ -1,1 +1,21 @@
 # function provides recs if user is a member of a group sensitive to air quality
+
+def sensitive_group_practices():
+    """
+    Ask the user if they are part of a group sensitive to air quality and 
+    list best practices for their health.
+    """
+    sensitive_groups = ["elderly", "children", "those with asthma", "those with COPD", "pregnant women"]
+    user_response = input("Are you part of a group sensitive to air quality (elderly, children, those with asthma, COPD, pregnant women)? (yes/no): ").strip().lower()
+
+    if user_response == "yes":
+        print("Best Practices for Sensitive Groups:")
+        print("1. Stay indoors as much as possible, especially on high pollution days.")
+        print("2. Keep windows and doors closed to prevent outdoor air from entering.")
+        print("3. Use air purifiers with HEPA filters to clean indoor air.")
+        print("4. Avoid strenuous outdoor activities that increase your exposure to pollutants.")
+        print("5. Monitor air quality forecasts and plan your activities accordingly.")
+        print("6. Keep medications accessible and follow your doctor's advice.")
+        print("7. If you experience symptoms such as difficulty breathing, seek medical attention immediately.")
+    else:
+        print("Thank you for your response. Stay informed about air quality levels for your well-being.")
