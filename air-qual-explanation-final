@@ -1,0 +1,57 @@
+def explain_air_quality():
+    """
+    Provide an interactive explanation of PM2.5 and PM10 air quality.
+    """
+    print("Let's learn about PM2.5 and PM10!")
+    print("PM2.5 and PM10 are particulate matter in the air that can affect health.")
+    
+    knowledge_level = input("Do you already know about PM2.5 and PM10? (yes/no): ").strip().lower()
+    
+    if knowledge_level == "yes":
+        print("Great! Let's review some key points.")
+    elif knowledge_level == "no":
+        print("No worries! Let's start with the basics.")
+    else:
+        print("I'll assume you know a bit. Let's review together.")
+    
+    print("\nPM2.5:")
+    print("PM2.5 refers to particulate matter that is 2.5 micrometers in diameter or smaller.")
+    print("These tiny particles can penetrate deep into the lungs and even enter the bloodstream.")
+    print("Sources include vehicle emissions, industrial processes, and residential heating.")
+    
+    user_input = input("Did you know that PM2.5 can enter the bloodstream? (yes/no): ").strip().lower()
+    
+    if user_input == "no":
+        print("Yes, PM2.5 particles are small enough to pass from the lungs into the bloodstream, which can cause various health issues.")
+    else:
+        print("Correct! PM2.5 particles are indeed small enough to enter the bloodstream.")
+
+    print("\nPM10:")
+    print("PM10 refers to particulate matter that is 10 micrometers in diameter or smaller.")
+    print("While larger than PM2.5, PM10 particles can still be inhaled and cause health problems.")
+    print("Sources include dust, pollen, mold, and combustion processes.")
+
+    user_input = input("Did you know that PM10 includes dust and pollen? (yes/no): ").strip().lower()
+    
+    if user_input == "no":
+        print("Yes, PM10 particles can include dust, pollen, and other larger particles that are still small enough to be inhaled.")
+    else:
+        print("Correct! PM10 includes various particles like dust and pollen.")
+
+    print("\nHealth Effects:")
+    print("Exposure to both PM2.5 and PM10 can cause respiratory and cardiovascular issues.")
+    print("Sensitive groups like the elderly, children, and people with pre-existing conditions are at higher risk.")
+    
+    user_input = input("Would you like to know more about how to protect yourself from these particles? (yes/no): ").strip().lower()
+    
+    if user_input == "yes":
+        print("Here are some tips to protect yourself:")
+        print("1. Monitor air quality forecasts and avoid outdoor activities when pollution levels are high.")
+        print("2. Use air purifiers with HEPA filters to reduce indoor pollution.")
+        print("3. Keep windows and doors closed on high pollution days.")
+        print("4. Wear masks designed to filter out particulate matter if you need to go outside.")
+        print("5. Follow your doctor's advice, especially if you have a pre-existing condition.")
+    else:
+        print("Alright, stay informed and take care of your health!")
+
+    print("That's a brief overview of PM2.5 and PM10. Stay safe and be aware of air quality levels around you.")
