@@ -175,23 +175,21 @@ class DataSet:
         return round(min(my_list), 2), round(sum(my_list) / len(my_list), 2), round(max(my_list), 2)
 
     def display_cross_table(self, stat: Stats):
-        """ 
+        """
         Given a stat from DataSet.Stats, produce a table that
         shows the value of that stat for every pair of labels from the
         two categories.
         """
-        if self._data is None:
+
+        if not self._data:
             print("Please load a dataset first.")
             return
-        print()
-        print(f"{' ':7}", end="")
-        for item in self._times:
-            print(f"{item:>8}", end="")
-        print()
+
+        table = []
+        headers = ["Zip Code/Time"] + self._times
         for item_one in self._zips:
-            if self._zips[item_one]:
-                print(f"{item_one:<7}", end="")
-                print()
+            row = [item_one]
+            table.append(row)
 
 def is_air_quality_satisfactory(self, zip_code: str):
     """
