@@ -1,0 +1,88 @@
+# trial: function to graph user's air quality in their zip code relative to other nearby zip codes
+import matplotlib.pyplot as plt
+
+def menu(my_dataset: DataSet):
+    """Obtain the user's menu option choices."""
+    int_option = 0
+    while int_option != 9:
+        print(f"\n{my_dataset.header}")
+        print_menu()
+        option = input("Which option do you choose? ")
+        try:
+            int_option = int(option)
+        except ValueError:
+            print("Please enter a valid number next time.")
+            continue
+        if int_option == 1:
+            my_dataset.display_cross_table(Stats.AVG)
+        elif int_option == 2:
+            my_dataset.display_cross_table(Stats.MIN)
+        elif int_option == 3:
+            my_dataset.display_cross_table(Stats.MAX)
+        elif int_option == 4:
+            manage_filters(my_dataset)
+        elif int_option == 5:
+            my_dataset.load_file()
+        elif int_option == 6:
+            zip_code = input("Enter the zip code to graph: ")
+            graph_air_quality(my_dataset, zip_code)
+        elif int_option == 9:
+            break
+        else:
+            print("Sorry, that selection is invalid.")
+    print("Goodbye! Thanks for using the database.")
+    quit()
+
+def print_menu():
+    """Print the menu options."""
+    print("Main Menu \n1 - Print Average Particulate Concentration by Zip"
+          "Code and Time \n2 - Print Minimum Particulate Concentration by Zip"
+          "Code and Time \n3 - Print Maximum Particulate Concentration by Zip"
+          "Code and Time \n4 - Adjust Zip Code Filters \n5 - Load Data \n6 - "
+          "Graph Air Quality Data \n9 - Quit")
+
+def graph_air_quality(my_dataset: DataSet, target_zip: str):
+    """
+    Graph the air quality for a specific zip code along with nearby zip codes.
+    
+    Parameters:
+        my_dataset (DataSet): The dataset containing air quality data.
+        target_zip (str): The zip code for which to graph the air quality.
+    """
+    if not my_dataset._data:
+        print("Please load a dataset first.")
+        return
+    
+    nearby_zips = get_nearby_zip_codes(target_zip, my_dataset._zips.keys())
+
+    fig, ax = plt.subplots()
+    
+    for zip_code in nearby_zips:
+        times = []
+        concentrations = []
+        for data in my_dataset._data:
+            if data[0] == zip_code:
+                times.append(data[1])
+                concentrations.append(data[2])        
+        if times and concentrations:
+            ax.plot(times, concentrations, label=f"Zip {zip_code}")
+
+    ax.set_xlabel('Time of Day')
+    ax.set_ylabel('Particulate Concentration (ug/m3)')
+    ax.set_title('Air Quality by Zip Code')
+    ax.legend()
+    plt.show()
+
+def get_nearby_zip_codes(target_zip, all_zips):
+    """
+    Placeholder function to get nearby zip codes. 
+    """
+    # For simplicity, this function returns the target zip and a few other zip codes
+    # actual implementation needs addtl logic based on area
+    nearby = [target_zip]
+    for zip_code in all_zips:
+        if zip_code != target_zip:
+            nearby.append(zip_code)
+        if len(nearby) >= 5:  # Limit to 5 zip codes initially
+            break
+    return nearby
