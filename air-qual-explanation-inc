@@ -1,1 +1,23 @@
 #explains air quality to users
+#INCOMPLETE
+
+def explain_air_quality():
+    """
+    Provide an interactive explanation of PM2.5 and PM10 air quality.
+    """
+    print("Let's learn about PM2.5 and PM10!")
+    print("PM2.5 and PM10 are particulate matter in the air that can affect health.")
+    
+    knowledge_level = input("Do you already know about PM2.5 and PM10? (yes/no): ").strip().lower()
+    
+    if knowledge_level == "yes":
+        print("Great! Let's review some key points.")
+    elif knowledge_level == "no":
+        print("No worries! Let's start with the basics.")
+    else:
+        print("I'll assume you know a bit. Let's review together.")
+    
+    print("\nPM2.5:")
+    print("PM2.5 refers to particulate matter that is 2.5 micrometers in diameter or smaller.")
+    print("These tiny particles can penetrate deep into the lungs and even enter the bloodstream.")
+    print("Sources include vehicle emissions, industrial processes, and residential heating.")
