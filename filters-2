@@ -229,24 +229,24 @@ def is_air_quality_satisfactory(self, zip_code: str):
     avg_pm25 = sum(pm25_values) / len(pm25_values)
     
     if avg_pm25 <= 12.0:
-        return f"The air quality in zip code {zip_code} is satisfactory (Good)."
+        return f"The air quality in zip code {zip_code} is satisfactory (good)."
     elif avg_pm25 <= 35.4:
-        return (f"The air quality in zip code {zip_code} is Moderate. "
+        return (f"The air quality in zip code {zip_code} is moderate. "
                 "Unusually sensitive people should consider reducing prolonged or heavy exertion.")
     elif avg_pm25 <= 55.4:
-        return (f"The air quality in zip code {zip_code} is Unhealthy for Sensitive Groups. "
+        return (f"The air quality in zip code {zip_code} is unhealthy for sensitive Groups. "
                 "Sensitive groups, such as people with respiratory or heart conditions, "
                 "children, and older adults, should limit prolonged outdoor exertion.")
     elif avg_pm25 <= 150.4:
-        return (f"The air quality in zip code {zip_code} is Unhealthy. "
+        return (f"The air quality in zip code {zip_code} is unhealthy. "
                 "Everyone may begin to experience health effects; members of sensitive groups "
-                "may experience more serious health effects. Limit outdoor activities.")
+                "such as those with health conditions may experience more serious health effects. Limit outdoor activities.")
     elif avg_pm25 <= 250.4:
-        return (f"The air quality in zip code {zip_code} is Very Unhealthy. "
+        return (f"The air quality in zip code {zip_code} is very unhealthy. "
                 "Health alert: everyone may experience more serious health effects. "
                 "Avoid outdoor activities and stay indoors as much as possible.")
     else:
-        return (f"The air quality in zip code {zip_code} is Hazardous. "
+        return (f"The air quality in zip code {zip_code} is hazardous. "
                 "Health warning of emergency conditions: everyone is more likely to be affected. "
                 "Stay indoors, avoid physical activities outdoors, and consider using air purifiers.")
 
