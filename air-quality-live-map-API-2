@@ -1,0 +1,46 @@
+# needs integration with live API
+import folium
+
+def generate_air_quality_map(country):
+    # Assume hypothetical air quality data for demonstration
+    air_quality_data = {
+        'New York': 20,
+        'Los Angeles': 35,
+        'Chicago': 15,
+        'Houston': 40,
+        'Phoenix': 25,
+        'Philadelphia': 18,
+        'San Antonio': 42
+    }
+    
+    # Create a map centered on the country
+    if country == 'United States':
+        center_coords = (39.8283, -98.5795)  # Center of the United States
+    else:
+        center_coords = None  # Center coordinates for other countries
+    
+    m = folium.Map(location=center_coords, zoom_start=4)
+    
+    # Color coding based on air quality levels
+    for city, aqi in air_quality_data.items():
+        color = 'green'
+        if aqi > 30:
+            color = 'yellow'
+        if aqi > 50:
+            color = 'orange'
+        if aqi > 100:
+            color = 'red'
+        folium.CircleMarker(
+            location=get_coordinates(city),  # Replace with actual coordinates for each city
+            radius=10,
+            popup=f"{city}: AQI {aqi}",
+            color=color,
+            fill=True,
+            fill_color=color
+        ).add_to(m)
+    
+    # Save map as an HTML file
+    m.save('air_quality_map.html')
+    
+    # Display the map
+    return m
