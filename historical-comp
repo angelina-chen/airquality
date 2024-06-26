@@ -1,0 +1,12 @@
+def compare_historical_data(current_aqi, historical_aqi):
+    comparison = {}
+    for city, current in current_aqi.items():
+        historical = historical_aqi.get(city, None)
+        if historical:
+            change = current - historical
+            comparison[city] = {'current': current, 'historical': historical, 'change': change}
+    return comparison
+
+current_aqi = fetch_air_quality_data('United States')
+historical_aqi = {'New York': 30, 'Los Angeles': 45, 'Chicago': 20, 'Houston': 50, 'Phoenix': 35, 'Philadelphia': 25, 'San Antonio': 40}
+compare_historical_data(current_aqi, historical_aqi)
