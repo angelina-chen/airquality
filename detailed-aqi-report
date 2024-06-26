@@ -1,0 +1,25 @@
+def generate_aqi_report(aqi):
+    if aqi <= 50:
+        return "Good (0-50): Air quality is considered satisfactory, and air pollution poses little or no risk."
+    elif aqi <= 100:
+        return "Moderate (51-100): Air quality is acceptable; however, there may be some pollution for sensitive individuals."
+    elif aqi <= 150:
+        return "Unhealthy for Sensitive Groups (101-150): Members of sensitive groups may experience health effects."
+    elif aqi <= 200:
+        return "Unhealthy (151-200): Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects."
+    elif aqi <= 300:
+        return "Very Unhealthy (201-300): Health alert: everyone may experience more serious health effects."
+    else:
+        return "Hazardous (301-500): Health warnings of emergency conditions. The entire population is more likely to be affected."
+
+for city, aqi in current_aqi.items():
+    print(f"{city}: {generate_aqi_report(aqi)}")
+
+def fetch_aqi_for_location(location):
+    # Use an actual API to fetch AQI data for the given location
+    # Placeholder for demonstration purposes
+    return 55  # Example AQI value for the given location
+
+location = input("Enter a location: ")
+location_aqi = fetch_aqi_for_location(location)
+print(f"The AQI for {location} is {location_aqi}")
