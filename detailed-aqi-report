@@ -1,25 +1,37 @@
-def generate_aqi_report(aqi):
-    if aqi <= 50:
-        return "Good (0-50): Air quality is considered satisfactory, and air pollution poses little or no risk."
-    elif aqi <= 100:
-        return "Moderate (51-100): Air quality is acceptable; however, there may be some pollution for sensitive individuals."
-    elif aqi <= 150:
-        return "Unhealthy for Sensitive Groups (101-150): Members of sensitive groups may experience health effects."
-    elif aqi <= 200:
-        return "Unhealthy (151-200): Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects."
-    elif aqi <= 300:
-        return "Very Unhealthy (201-300): Health alert: everyone may experience more serious health effects."
-    else:
-        return "Hazardous (301-500): Health warnings of emergency conditions. The entire population is more likely to be affected."
+import requests
+import matplotlib.pyplot as plt
 
-for city, aqi in current_aqi.items():
-    print(f"{city}: {generate_aqi_report(aqi)}")
-
+# Fetch AQI data for a specific location
 def fetch_aqi_for_location(location):
-    # Use an actual API to fetch AQI data for the given location
-    # Placeholder for demonstration purposes
-    return 55  # Example AQI value for the given location
+    # Placeholder for actual API call to fetch AQI data
+    # Here, we use a mock API response
+    mock_api_response = {
+        "New York": 55,
+        "Los Angeles": 120,
+        "Chicago": 90,
+        "Houston": 70,
+        "Phoenix": 60,
+        "Philadelphia": 45,
+        "San Antonio": 80
+    }
+    return mock_api_response.get(location, None)
 
-location = input("Enter a location: ")
-location_aqi = fetch_aqi_for_location(location)
-print(f"The AQI for {location} is {location_aqi}")
+# Provide health recommendations based on AQI
+def health_recommendations(aqi, sensitive_group=False):
+    recommendations = ""
+    if aqi <= 50:
+        recommendations = "Air quality is good. No precautions needed."
+    elif aqi <= 100:
+        recommendations = "Air quality is moderate. Sensitive individuals should consider limiting prolonged outdoor exertion."
+    elif aqi <= 150:
+        recommendations = "Unhealthy for sensitive groups. Sensitive individuals should avoid prolonged outdoor exertion."
+    elif aqi <= 200:
+        recommendations = "Unhealthy. Everyone should avoid prolonged outdoor exertion."
+    elif aqi <= 300:
+        recommendations = "Very unhealthy. Everyone should avoid all outdoor exertion."
+    else:
+        recommendations = "Hazardous. Stay indoors and keep windows and doors closed."
+    
+    if sensitive_group:
+        recommendations += "\nSensitive groups include children, elderly, and individuals with respiratory or heart conditions."
+    return recommendations
