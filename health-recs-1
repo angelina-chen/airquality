@@ -1,0 +1,17 @@
+def health_recommendations(aqi, sensitive_group=False):
+    if aqi <= 50:
+        return "Air quality is good. No precautions needed."
+    elif aqi <= 100:
+        return "Air quality is moderate. Sensitive individuals should consider limiting prolonged outdoor exertion."
+    elif aqi <= 150:
+        return "Unhealthy for sensitive groups. Sensitive individuals should avoid prolonged outdoor exertion."
+    elif aqi <= 200:
+        return "Unhealthy. Everyone should avoid prolonged outdoor exertion."
+    elif aqi <= 300:
+        return "Very unhealthy. Everyone should avoid all outdoor exertion."
+    else:
+        return "Hazardous. Stay indoors and keep windows and doors closed."
+
+for city, aqi in current_aqi.items():
+    recommendation = health_recommendations(aqi, sensitive_group=True)
+    print(f"{city}: {recommendation}")
