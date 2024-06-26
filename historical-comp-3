@@ -1,0 +1,24 @@
+import matplotlib.pyplot as plt
+
+def compare_historical_data(current_aqi, historical_aqi):
+    comparison = {}
+    for city, current in current_aqi.items():
+        historical = historical_aqi.get(city, None)
+        if historical is not None:
+            change = current - historical
+            comparison[city] = {
+                'current': current,
+                'historical': historical,
+                'change': change
+            }
+    return comparison
+
+def generate_comparison_report(comparison):
+    report = []
+    for city, data in comparison.items():
+        report.append(
+            f"{city}: Current AQI = {data['current']}, Historical AQI = {data['historical']}, "
+            f"Change = {'+' if data['change'] > 0 else ''}{data['change']}"
+        )
+    return "\n".join(report)
+
