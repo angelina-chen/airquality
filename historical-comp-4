@@ -1,0 +1,35 @@
+import matplotlib.pyplot as plt
+
+def compare_historical_data(current_aqi, historical_aqi):
+    comparison = {}
+    for city, current in current_aqi.items():
+        historical = historical_aqi.get(city, None)
+        if historical is not None:
+            change = current - historical
+            comparison[city] = {
+                'current': current,
+                'historical': historical,
+                'change': change
+            }
+    return comparison
+
+def generate_comparison_report(comparison):
+    report = []
+    for city, data in comparison.items():
+        report.append(
+            f"{city}: Current AQI = {data['current']}, Historical AQI = {data['historical']}, "
+            f"Change = {'+' if data['change'] > 0 else ''}{data['change']}"
+        )
+    return "\n".join(report)
+
+def visualize_comparison(comparison):
+    cities = list(comparison.keys())
+    current_aqi = [data['current'] for data in comparison.values()]
+    historical_aqi = [data['historical'] for data in comparison.values()]
+
+    x = range(len(cities))
+    
+    plt.figure(figsize=(10, 5))
+    plt.bar(x, current_aqi, width=0.4, label='Current AQI', align='center', color='blue')
+    plt.bar(x, historical_aqi, width=0.4, label='Historical AQI', align='edge', color='green')
+    
