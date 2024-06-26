@@ -35,3 +35,29 @@ def health_recommendations(aqi, sensitive_group=False):
     if sensitive_group:
         recommendations += "\nSensitive groups include children, elderly, and individuals with respiratory or heart conditions."
     return recommendations
+
+# Visualize AQI level with a bar chart
+def visualize_aqi(location, aqi):
+    plt.figure(figsize=(7, 4))
+    colors = ['green' if aqi <= 50 else 'yellow' if aqi <= 100 else 'orange' if aqi <= 150 else 'red' if aqi <= 200 else 'purple' if aqi <= 300 else 'maroon']
+    plt.bar(location, aqi, color=colors)
+    plt.xlabel('Location')
+    plt.ylabel('AQI')
+    plt.title(f'Air Quality Index for {location}')
+    plt.ylim(0, 500)
+    plt.show()
+
+# Provide potential sources of pollution
+def pollution_sources(aqi):
+    if aqi <= 50:
+        return "Good air quality. No significant sources of pollution."
+    elif aqi <= 100:
+        return "Moderate air quality. Possible sources: emissions from vehicles, power plants, and minor industrial activities."
+    elif aqi <= 150:
+        return "Unhealthy for sensitive groups. Possible sources: increased vehicle emissions, industrial activities, and wildfires."
+    elif aqi <= 200:
+        return "Unhealthy air quality. Significant sources: heavy traffic, industrial pollution, and wildfires."
+    elif aqi <= 300:
+        return "Very unhealthy air quality. Major sources: extensive industrial pollution, heavy traffic, and significant wildfires."
+    else:
+        return "Hazardous air quality. Major sources: extensive industrial pollution, severe wildfires, and other significant sources."
