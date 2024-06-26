@@ -1,0 +1,60 @@
+import folium
+import requests
+
+def fetch_air_quality_data(country):
+    return {
+        'New York': 20,
+        'Los Angeles': 35,
+        'Chicago': 15,
+        'Houston': 40,
+        'Phoenix': 25,
+        'Philadelphia': 18,
+        'San Antonio': 42
+    }
+
+def get_coordinates(city):
+    # later use an API to get coordinates based on city names
+    coordinates = {
+        'New York': (40.7128, -74.0060),
+        'Los Angeles': (34.0522, -118.2437),
+        'Chicago': (41.8781, -87.6298),
+        'Houston': (29.7604, -95.3698),
+        'Phoenix': (33.4484, -112.0740),
+        'Philadelphia': (39.9526, -75.1652),
+        'San Antonio': (29.4241, -98.4936)
+    }
+    return coordinates.get(city, (0, 0))  # Default to (0, 0) if coordinates not found
+
+def generate_air_quality_map(country):
+    air_quality_data = fetch_air_quality_data(country)
+    
+    center_coords = (39.8283, -98.5795) if country == 'United States' else (0, 0)
+    
+    m = folium.Map(location=center_coords, zoom_start=4)
+    
+    for city, aqi in air_quality_data.items():
+        color = 'green'
+        if aqi > 50:
+            color = 'yellow'
+        if aqi > 100:
+            color = 'orange'
+        if aqi > 150:
+            color = 'red'
+        if aqi > 200:
+            color = 'purple'
+        if aqi > 300:
+            color = 'maroon'
+        
+        folium.CircleMarker(
+            location=get_coordinates(city),
+            radius=10,
+            popup=folium.Popup(f"{city}: AQI {aqi}", parse_html=True),
+            color=color,
+            fill=True,
+            fill_color=color,
+            fill_opacity=0.6
+        ).add_to(m)
+    
+    folium.LayerControl().add_to(m)
+    m.save('air_quality_map.html')
+    return m
