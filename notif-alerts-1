@@ -1,0 +1,10 @@
+def check_aqi_threshold(air_quality_data, threshold=100):
+    alerts = {}
+    for city, aqi in air_quality_data.items():
+        if aqi > threshold:
+            alerts[city] = aqi
+    return alerts
+
+alerts = check_aqi_threshold(current_aqi, 100)
+if alerts:
+    print("Alert! High AQI detected in the following cities:", alerts)
