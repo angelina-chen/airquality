@@ -1,0 +1,14 @@
+import matplotlib.pyplot as plt
+
+def compare_historical_data(current_aqi, historical_aqi):
+    comparison = {}
+    for city, current in current_aqi.items():
+        historical = historical_aqi.get(city, None)
+        if historical is not None:
+            change = current - historical
+            comparison[city] = {
+                'current': current,
+                'historical': historical,
+                'change': change
+            }
+    return comparison
