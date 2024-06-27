@@ -1,0 +1,103 @@
+import matplotlib.pyplot as plt
+import random
+import numpy as np
+
+def fetch_global_aqi_data():
+    # Simulated AQI data for different regions
+    regions = {
+        "North America": random.randint(10, 150),
+        "South America": random.randint(10, 150),
+        "Europe": random.randint(10, 150),
+        "Africa": random.randint(10, 150),
+        "Asia": random.randint(10, 150),
+        "Australia": random.randint(10, 150),
+        "Antarctica": random.randint(10, 50),  # Generally better air quality
+        "Middle East": random.randint(10, 150),
+        "Russia": random.randint(10, 150),
+        "India": random.randint(50, 300)  # Known for higher AQI levels
+    }
+    return regions
+
+def live_air_quality_pie_chart():
+    aqi_data = fetch_global_aqi_data()
+    
+    adequate_count = sum(1 for aqi in aqi_data.values() if aqi <= 50)
+    inadequate_count = len(aqi_data) - adequate_count
+    
+    labels = 'Adequate Air Quality', 'Inadequate Air Quality'
+    sizes = [adequate_count, inadequate_count]
+    colors = ['green', 'red']
+    
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%',
+                                     startangle=90, textprops=dict(color="w"))
+    
+    # Enhance the visualization
+    ax.legend(wedges, labels,
+              title="Air Quality",
+              loc="center left",
+              bbox_to_anchor=(1, 0, 0.5, 1))
+    
+    plt.setp(autotexts, size=10, weight="bold")
+    ax.set_title("Global Air Quality Distribution")
+
+    plt.show()
+
+def fetch_aqi_for_location(location):
+    mock_api_response = {
+        "New York": 55,
+        "Los Angeles": 120,
+        "Chicago": 90,
+        "Houston": 70,
+        "Phoenix": 60,
+        "Philadelphia": 45,
+        "San Antonio": 80
+    }
+    return mock_api_response.get(location, None)
+
+def health_recommendations(aqi, sensitive_group=False):
+    recommendations = ""
+    if aqi <= 50:
+        recommendations = "Air quality is good. No precautions needed."
+    elif aqi <= 100:
+        recommendations = "Air quality is moderate. Sensitive individuals should consider limiting prolonged outdoor exertion."
+    elif aqi <= 150:
+        recommendations = "Unhealthy for sensitive groups. Sensitive individuals should avoid prolonged outdoor exertion."
+    elif aqi <= 200:
+        recommendations = "Unhealthy. Everyone should avoid prolonged outdoor exertion."
+    elif aqi <= 300:
+        recommendations = "Very unhealthy. Everyone should avoid all outdoor exertion."
+    else:
+        recommendations = "Hazardous. Stay indoors and keep windows and doors closed."
+    
+    if sensitive_group:
+        recommendations += "\nSensitive groups include children, elderly, and individuals with respiratory or heart conditions."
+    return recommendations
+
+def visualize_aqi(location, aqi):
+    plt.figure(figsize=(10, 6))
+    colors = ['green' if aqi <= 50 else 'yellow' if aqi <= 100 else 'orange' if aqi <= 150 else 'red' if aqi <= 200 else 'purple' if aqi <= 300 else 'maroon']
+    plt.bar(location, aqi, color=colors)
+    plt.xlabel('Location')
+    plt.ylabel('AQI')
+    plt.title(f'Air Quality Index for {location}')
+    plt.ylim(0, 500)
+
+    for i, v in enumerate([aqi]):
+        plt.text(i, v + 10, str(v), color='black', ha='center')
+    
+    plt.show()
+
+def pollution_sources(aqi):
+    if aqi <= 50:
+        return "Good air quality. No significant sources of pollution."
+    elif aqi <= 100:
+        return "Moderate air quality. Possible sources: emissions from vehicles, power plants, and minor industrial activities."
+    elif aqi <= 150:
+        return "Unhealthy for sensitive groups. Possible sources: increased vehicle emissions, industrial activities, and wildfires."
+    elif aqi <= 200:
+        return "Unhealthy air quality. Significant sources: heavy traffic, industrial pollution, and wildfires."
+    elif aqi <= 300:
+        return "Very unhealthy air quality. Major sources: extensive industrial pollution, heavy traffic, and significant wildfires."
+    else:
+        return "Hazardous air quality. Major sources: extensive industrial pollution, severe wildfires, and other significant sources."
