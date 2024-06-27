@@ -1,7 +1,6 @@
 import requests
 import matplotlib.pyplot as plt
 
-# Fetch AQI data for a specific location
 def fetch_aqi_for_location(location):
     # Placeholder for actual API call to fetch AQI data
     # Here, we use a mock API response
@@ -16,7 +15,6 @@ def fetch_aqi_for_location(location):
     }
     return mock_api_response.get(location, None)
 
-# Provide health recommendations based on AQI
 def health_recommendations(aqi, sensitive_group=False):
     recommendations = ""
     if aqi <= 50:
@@ -36,7 +34,6 @@ def health_recommendations(aqi, sensitive_group=False):
         recommendations += "\nSensitive groups include children, elderly, and individuals with respiratory or heart conditions."
     return recommendations
 
-# Visualize AQI level with a bar chart
 def visualize_aqi(location, aqi):
     plt.figure(figsize=(7, 4))
     colors = ['green' if aqi <= 50 else 'yellow' if aqi <= 100 else 'orange' if aqi <= 150 else 'red' if aqi <= 200 else 'purple' if aqi <= 300 else 'maroon']
@@ -47,7 +44,6 @@ def visualize_aqi(location, aqi):
     plt.ylim(0, 500)
     plt.show()
 
-# Provide potential sources of pollution
 def pollution_sources(aqi):
     if aqi <= 50:
         return "Good air quality. No significant sources of pollution."
@@ -61,3 +57,28 @@ def pollution_sources(aqi):
         return "Very unhealthy air quality. Major sources: extensive industrial pollution, heavy traffic, and significant wildfires."
     else:
         return "Hazardous air quality. Major sources: extensive industrial pollution, severe wildfires, and other significant sources."
+
+def main():
+    while True:
+        location = input("Enter a location (or 'exit' to quit): ").strip()
+        if location.lower() == 'exit':
+            print("Exiting the application. Stay safe!")
+            break
+        
+        aqi = fetch_aqi_for_location(location)
+        
+        if aqi is not None:
+            print(f"\nThe AQI for {location} is {aqi}\n")
+
+            recommendation = health_recommendations(aqi, sensitive_group=True)
+            print(f"Health Recommendation:\n{recommendation}\n")
+            
+            sources = pollution_sources(aqi)
+            print(f"Potential Sources of Pollution:\n{sources}\n")
+            
+            visualize_aqi(location, aqi)
+        else:
+            print(f"Sorry, no AQI data available for '{location}'. Please try another location.\n")
+
+if __name__ == "__main__":
+    main()
