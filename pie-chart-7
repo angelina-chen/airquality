@@ -1,0 +1,47 @@
+import matplotlib.pyplot as plt
+import random
+import numpy as np
+
+def fetch_global_aqi_data():
+    regions = {
+        "North America": random.randint(10, 150),
+        "South America": random.randint(10, 150),
+        "Europe": random.randint(10, 150),
+        "Africa": random.randint(10, 150),
+        "Asia": random.randint(10, 150),
+        "Australia": random.randint(10, 150),
+        "Antarctica": random.randint(10, 50),
+        "Middle East": random.randint(10, 150),
+        "Russia": random.randint(10, 150),
+        "India": random.randint(50, 300)
+    }
+    return regions
+
+def live_air_quality_pie_chart():
+    # Fetch global AQI data
+    aqi_data = fetch_global_aqi_data()
+    
+    # User inputs for pie chart colors
+    adequate_color = input("Enter color for Adequate Air Quality: ").strip() or 'green'
+    inadequate_color = input("Enter color for Inadequate Air Quality: ").strip() or 'red'
+    
+    # Calculate adequate and inadequate air quality regions
+    adequate_count = sum(1 for aqi in aqi_data.values() if aqi <= 50)
+    inadequate_count = len(aqi_data) - adequate_count
+    
+    # Pie chart data
+    labels = 'Adequate Air Quality', 'Inadequate Air Quality'
+    sizes = [adequate_count, inadequate_count]
+    colors = [adequate_color, inadequate_color]
+    
+    # Plotting the pie chart
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%',
+                                     startangle=90, textprops=dict(color="w"))
+    
+    # Enhance the visualization
+    ax.legend(wedges, labels, title="Air Quality", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    plt.setp(autotexts, size=10, weight="bold")
+    ax.set_title("Global Air Quality Distribution")
+
+    plt.show()
