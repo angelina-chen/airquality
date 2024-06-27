@@ -1,0 +1,65 @@
+import matplotlib.pyplot as plt
+import random
+
+def fetch_global_aqi_data():
+    # Simulated AQI data for different regions
+    regions = {
+        "North America": random.randint(10, 150),
+        "South America": random.randint(10, 150),
+        "Europe": random.randint(10, 150),
+        "Africa": random.randint(10, 150),
+        "Asia": random.randint(10, 150),
+        "Australia": random.randint(10, 150)
+    }
+    return regions
+
+def live_air_quality_pie_chart():
+    aqi_data = fetch_global_aqi_data()
+    
+    adequate_count = sum(1 for aqi in aqi_data.values() if aqi <= 50)
+    inadequate_count = len(aqi_data) - adequate_count
+    
+    labels = 'Adequate Air Quality', 'Inadequate Air Quality'
+    sizes = [adequate_count, inadequate_count]
+    colors = ['green', 'red']
+    
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%',
+            shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    
+    plt.title('Global Air Quality Distribution')
+    plt.show()
+
+def main():
+    while True:
+        location = input("Enter a location (or 'exit' to quit): ").strip()
+        if location.lower() == 'exit':
+            print("Exiting the application. Stay safe!")
+            break
+        
+        aqi = fetch_aqi_for_location(location)
+        
+        if aqi is not None:
+            print(f"\nThe AQI for {location} is {aqi}\n")
+            
+            # Display health recommendations
+            recommendation = health_recommendations(aqi, sensitive_group=True)
+            print(f"Health Recommendation:\n{recommendation}\n")
+            
+            # Display potential sources of pollution
+            sources = pollution_sources(aqi)
+            print(f"Potential Sources of Pollution:\n{sources}\n")
+            
+            # Visualize AQI
+            visualize_aqi(location, aqi)
+        else:
+            print(f"Sorry, no AQI data available for '{location}'. Please try another location.\n")
+
+        # Option to display global air quality pie chart
+        show_global_aqi = input("Would you like to see a live pie chart of global air quality? (yes/no): ").strip().lower()
+        if show_global_aqi == 'yes':
+            live_air_quality_pie_chart()
+
+if __name__ == "__main__":
+    main()
