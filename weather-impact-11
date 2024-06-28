@@ -1,0 +1,123 @@
+import random
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Mock function to simulate fetching current weather data for a location
+def fetch_current_weather(location):
+    weather_conditions = ["Sunny", "Cloudy", "Rainy", "Windy", "Stormy"]
+    weather_data = {
+        "temperature": random.uniform(10, 30),  # Celsius
+        "humidity": random.uniform(20, 80),     # Percent
+        "condition": random.choice(weather_conditions)
+    }
+    return weather_data
+
+# Mock function to simulate fetching historical weather data for a location
+def fetch_historical_weather(location):
+    weather_conditions = ["Sunny", "Cloudy", "Rainy", "Windy", "Stormy"]
+    data = []
+    for _ in range(30):
+        data.append({
+            "temperature": random.uniform(10, 30),
+            "humidity": random.uniform(20, 80),
+            "condition": random.choice(weather_conditions)
+        })
+    return data
+
+def weather_impact_analysis(location, current_aqi):
+    weather = fetch_current_weather(location)
+    historical_weather = fetch_historical_weather(location)
+
+    condition = weather["condition"]
+    temperature = weather["temperature"]
+    humidity = weather["humidity"]
+    
+    print(f"Current Weather in {location}:")
+    print(f"Condition: {condition}")
+    print(f"Temperature: {temperature:.1f} °C")
+    print(f"Humidity: {humidity:.1f}%")
+    
+    analysis = ""
+    
+    if condition in ["Sunny", "Windy"]:
+        analysis += "Sunny and windy conditions generally help disperse pollutants, leading to better air quality.\n"
+    elif condition in ["Cloudy", "Rainy"]:
+        analysis += "Cloudy and rainy conditions can help wash away pollutants, temporarily improving air quality.\n"
+    else:
+        analysis += "Stormy conditions can stir up dust and other pollutants, potentially worsening air quality.\n"
+    
+    if temperature > 25:
+        analysis += "High temperatures can increase the concentration of ground-level ozone, negatively impacting air quality.\n"
+    
+    if humidity > 60:
+        analysis += "High humidity can lead to the formation of secondary pollutants, such as particulate matter, worsening air quality.\n"
+    
+    if not analysis:
+        analysis = "Weather conditions are neutral regarding their impact on air quality."
+
+    print("\nWeather Impact Analysis on Air Quality:")
+    print(analysis)
+
+    labels = ['Temperature (°C)', 'Humidity (%)', 'AQI']
+    values = [temperature, humidity, current_aqi]
+    colors = ['red' if temperature > 25 else 'blue', 'red' if humidity > 60 else 'blue', 'green' if current_aqi <= 50 else 'yellow' if current_aqi <= 100 else 'orange' if current_aqi <= 150 else 'red']
+
+    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+
+    bars = axs[0, 0].bar(labels, values, color=colors)
+    for bar in bars:
+        height = bar.get_height()
+        axs[0, 0].annotate(f'{round(height, 1)}',
+                           xy=(bar.get_x() + bar.get_width() / 2, height),
+                           xytext=(0, 3),  # 3 points vertical offset
+                           textcoords="offset points",
+                           ha='center', va='bottom')
+    axs[0, 0].set_title(f'Weather Impact on Air Quality in {location}')
+    axs[0, 0].set_ylim(0, 100)
+
+    temperatures = [data["temperature"] for data in historical_weather]
+    axs[0, 1].plot(range(1, 31), temperatures, marker='o', linestyle='-')
+    axs[0, 1].set_title('Historical Temperature (°C)')
+    axs[0, 1].set_xlabel('Day')
+    axs[0, 1].set_ylabel('Temperature (°C)')
+
+    humidities = [data["humidity"] for data in historical_weather]
+    axs[1, 0].plot(range(1, 31), humidities, marker='o', linestyle='-')
+    axs[1, 0].set_title('Historical Humidity (%)')
+    axs[1, 0].set_xlabel('Day')
+    axs[1, 0].set_ylabel('Humidity (%)')
+
+    condition_counts = {condition: 0 for condition in ["Sunny", "Cloudy", "Rainy", "Windy", "Stormy"]}
+    for data in historical_weather:
+        condition_counts[data["condition"]] += 1
+    condition_labels = condition_counts.keys()
+    condition_sizes = condition_counts.values()
+    condition_colors = ['gold', 'lightblue', 'lightgreen', 'lightcoral', 'violet']
+    axs[1, 1].pie(condition_sizes, labels=condition_labels, colors=condition_colors, autopct='%1.1f%%', startangle=140)
+    axs[1, 1].set_title('Weather Conditions Distribution')
+
+    labels = ['Temperature (°C)', 'Humidity (%)', 'AQI']
+    values = [temperature, humidity, current_aqi]
+    colors = ['red' if temperature > 25 else 'blue', 'red' if humidity > 60 else 'blue', 'green' if current_aqi <= 50 else 'yellow' if current_aqi <= 100 else 'orange' if current_aqi <= 150 else 'red']
+
+    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+
+    temperatures = [data["temperature"] for data in historical_weather]
+    days = range(1, 31)
+    axs[0, 1].plot(days, temperatures, marker='o', linestyle='-', color='orange', label='Temperature (°C)')
+    axs[0, 1].set_title('Historical Temperature (°C)')
+    axs[0, 1].set_xlabel('Day')
+    axs[0, 1].set_ylabel('Temperature (°C)')
+    axs[0, 1].grid(True)
+
+    max_temp = max(temperatures)
+    min_temp = min(temperatures)
+    max_temp_day = temperatures.index(max_temp) + 1
+    min_temp_day = temperatures.index(min_temp) + 1
+    axs[0, 1].annotate(f'Max: {max_temp:.1f} °C', xy=(max_temp_day, max_temp), xytext=(max_temp_day+1, max_temp+1),
+                       arrowprops=dict(facecolor='black', shrink=0.05))
+    axs[0, 1].annotate(f'Min: {min_temp:.1f} °C', xy=(min_temp_day, min_temp), xytext=(min_temp_day+1, min_temp+1),
+                       arrowprops=dict(facecolor='black', shrink=0.05))
+
+    plt.tight_layout()
+    plt.show()
