@@ -1,0 +1,35 @@
+import random
+
+def fetch_nearby_stations(location):
+    stations = [
+        {"name": "Station A", "distance_km": round(random.uniform(0.5, 10), 2), "aqi": random.randint(0, 200)},
+        {"name": "Station B", "distance_km": round(random.uniform(0.5, 10), 2), "aqi": random.randint(0, 200)},
+        {"name": "Station C", "distance_km": round(random.uniform(0.5, 10), 2), "aqi": random.randint(0, 200)},
+        {"name": "Station D", "distance_km": round(random.uniform(0.5, 10), 2), "aqi": random.randint(0, 200)},
+        {"name": "Station E", "distance_km": round(random.uniform(0.5, 10), 2), "aqi": random.randint(0, 200)},
+    ]
+    return sorted(stations, key=lambda x: x['distance_km'])
+
+def display_nearby_stations(location):
+    stations = fetch_nearby_stations(location)
+    
+    print(f"\nNearby Air Quality Monitoring Stations for {location}:\n")
+    for station in stations:
+        name = station["name"]
+       distance = station["distance_km"]
+        aqi = station["aqi"]
+        if aqi <= 50:
+            aqi_status = "Good"
+            color = "Green"
+        elif aqi <= 100:
+            aqi_status = "Moderate"
+            color = "Yellow"
+        elif aqi <= 150:
+            aqi_status = "Unhealthy for Sensitive Groups"
+            color = "Orange"
+       elif aqi <= 200:
+            aqi_status = "Unhealthy"
+            color = "Red"
+        else:
+            aqi_status = "Very Unhealthy"
+            color = "Purple"
