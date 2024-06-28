@@ -1,0 +1,26 @@
+class ClimateGuessingGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Climate Phenomena Guessing Game")
+        
+        self.image_label = tk.Label(root)
+        self.image_label.pack()
+        
+        self.options = ["Hurricane", "Tornado", "Flood", "Wildfire"]
+        
+        self.answer = tk.StringVar()
+        self.option_buttons = []
+        for option in self.options:
+            btn = tk.Radiobutton(root, text=option, variable=self.answer, value=option)
+            btn.pack(anchor=tk.W)
+            self.option_buttons.append(btn)
+        
+        self.submit_button = tk.Button(root, text="Submit", command=self.check_answer)
+        self.submit_button.pack()
+        
+        self.load_image("climate_phenomena_1.jpg")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = ClimateGuessingGame(root)
+    root.mainloop()
