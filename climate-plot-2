@@ -1,0 +1,67 @@
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+def draw_climate_map(country_name):
+    # Load the world map dataset from geopandas
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+
+    # Filter the dataset to get the specific country
+    country = world[world.name == country_name]
+
+    if country.empty:
+        print(f"Could not find data for {country_name}. Please check the country name and try again.")
+        return
+
+    # Plotting
+    fig, ax = plt.subplots(figsize=(10, 6))
+    country.plot(ax=ax, color='lightblue', edgecolor='black')
+    ax.set_title(f'Climate Data Map for {country_name}')
+    ax.set_axis_off()  # Turn off the axis
+    plt.show()
+
+# alt function
+
+def draw_climate_map():
+    country = input("Enter the country you want to generate the climate map for: ")
+
+    air_quality_data = fetch_air_quality_data(country)
+
+    if not air_quality_data:
+        print(f"No data available for {country}")
+        return
+
+    map_center = [air_quality_data[0]['lat'], air_quality_data[0]['lon']]
+    climate_map = folium.Map(location=map_center, zoom_start=5)
+
+    def get_color(aqi):
+        if aqi <= 50:
+            return "green"
+        elif aqi <= 100:
+            return "yellow"
+        elif aqi <= 150:
+            return "orange"
+        elif aqi <= 200:
+            return "red"
+        elif aqi <= 300:
+            return "purple"
+        else:
+            return "maroon"
+
+    for data in air_quality_data:
+        city = data['city']
+        lat = data['lat']
+        lon = data['lon']
+        aqi = data['aqi']
+        color = get_color(aqi)
+        folium.CircleMarker(
+            location=[lat, lon],
+            radius=10,
+            popup=f"{city}: AQI {aqi}",
+            color=color,
+            fill=True,
+            fill_color=color
+        ).add_to(climate_map)
+
+    map_filename = f"{country}_climate_map.html"
+    climate_map.save(map_filename)
+    print(f"Climate map for {country} has been generated and saved as {map_filename}.")
