@@ -1,0 +1,159 @@
+class ClimateGuessingGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Climate Phenomena Guessing Game")
+        self.root.geometry("400x700")
+        
+        # Initialize pygame mixer
+        pygame.mixer.init()
+
+        # Load sounds
+        self.correct_sound = pygame.mixer.Sound("correct.wav")
+        self.incorrect_sound = pygame.mixer.Sound("incorrect.wav")
+        self.background_music = "background_music.mp3"
+
+        # Play background music
+        pygame.mixer.music.load(self.background_music)
+        pygame.mixer.music.play(-1)  # Loop the music
+
+        self.score = 0
+        self.total_questions = 0
+        self.correct_answers = 0
+        self.user_answers = []
+        self.correct_answers_list = []
+        
+        self.score_label = tk.Label(root, text=f"Score: {self.score}", font=("Arial", 14))
+        self.score_label.pack(pady=10)
+        
+        self.image_label = tk.Label(root)
+        self.image_label.pack(pady=10)
+        
+        self.options_easy = ["Hurricane", "Tornado", "Flood"]
+        self.options_medium = ["Wildfire", "Drought", "Blizzard"]
+        self.options_hard = ["Hurricane", "Tornado", "Flood", "Wildfire", "Drought", "Blizzard"]
+        
+        self.answer = tk.StringVar()
+        self.option_frame = tk.Frame(root)
+        self.option_frame.pack(pady=10)
+        
+        self.option_buttons = []
+        self.difficulty_level = tk.StringVar(value="Easy")
+        difficulty_radios = [("Easy", "Easy"), ("Medium", "Medium"), ("Hard", "Hard")]
+        for text, level in difficulty_radios:
+            btn = tk.Radiobutton(self.option_frame, text=text, variable=self.difficulty_level, value=level, command=self.update_options)
+            btn.pack(anchor=tk.W, padx=20)
+        
+        self.submit_button = tk.Button(root, text="Submit", command=self.check_answer)
+        self.submit_button.pack(pady=10)
+        
+        self.hint_button = tk.Button(root, text="Hint", command=self.show_hint)
+        self.hint_button.pack(pady=10)
+        
+        self.restart_button = tk.Button(root, text="Restart", command=self.restart_game)
+        self.restart_button.pack(pady=10)
+        
+        self.timer_label = tk.Label(root, text="Time left: 10", font=("Arial", 14))
+        self.timer_label.pack(pady=10)
+        
+        self.show_graph_button = tk.Button(root, text="Show Graph", command=self.show_graph)
+        self.show_graph_button.pack(pady=10)
+        
+        self.images = [
+            ("climate_phenomena_1.jpg", "Hurricane", "This phenomenon involves strong winds and heavy rains."),
+            ("climate_phenomena_2.jpg", "Tornado", "This is a rapidly rotating column of air."),
+            ("climate_phenomena_3.jpg", "Flood", "This happens when water overflows onto normally dry land."),
+            ("climate_phenomena_4.jpg", "Wildfire", "This is an uncontrolled fire in a forest or grassland."),
+            ("climate_phenomena_5.jpg", "Drought", "This is a prolonged period of low rainfall."),
+            ("climate_phenomena_6.jpg", "Blizzard", "This is a severe snowstorm with strong winds.")
+        ]
+        
+        self.current_image = None
+        self.time_left = 10
+        self.load_random_image()
+        self.update_timer()
+    
+    def update_options(self):
+        difficulty = self.difficulty_level.get()
+        if difficulty == "Easy":
+            self.options = self.options_easy
+        elif difficulty == "Medium":
+            self.options = self.options_medium
+        elif difficulty == "Hard":
+            self.options = self.options_hard
+    
+    def load_image(self, image_path):
+        image = Image.open(image_path)
+        image = image.resize((300, 300), Image.ANTIALIAS)
+        self.image = ImageTk.PhotoImage(image)
+        self.image_label.config(image=self.image)
+    
+    def load_random_image(self):
+        self.current_image = random.choice(self.images)
+        self.load_image(self.current_image[0])
+        self.time_left = 10
+        self.update_timer()
+    
+    def check_answer(self):
+        selected_option = self.answer.get()
+        correct_answer = self.current_image[1]
+        self.user_answers.append(selected_option)
+        self.correct_answers_list.append(correct_answer)
+        self.total_questions += 1
+        if selected_option == correct_answer:
+            self.score += 1
+            self.correct_answers += 1
+            pygame.mixer.Sound.play(self.correct_sound)
+            messagebox.showinfo("Result", "Correct!")
+        else:
+            pygame.mixer.Sound.play(self.incorrect_sound)
+            messagebox.showinfo("Result", f"Incorrect! The correct answer is {correct_answer}.")
+        self.score_label.config(text=f"Score: {self.score}")
+        self.load_random_image()
+    
+    def restart_game(self):
+        self.score = 0
+        self.total_questions = 0
+        self.correct_answers = 0
+        self.user_answers = []
+        self.correct_answers_list = []
+        self.score_label.config(text=f"Score: {self.score}")
+        self.load_random_image()
+    
+    def update_timer(self):
+        if self.time_left > 0:
+            self.timer_label.config(text=f"Time left: {self.time_left}")
+            self.time_left -= 1
+            self.root.after(1000, self.update_timer)
+        else:
+            self.end_game()
+
+    def end_game(self):
+        pygame.mixer.music.stop()
+        messagebox.showinfo("Game Over", f"Game Over! Your final score is {self.score}.")
+        self.restart_game()
+    
+    def show_hint(self):
+        hint = self.current_image[2]
+        messagebox.showinfo("Hint", hint)
+    
+    def show_graph(self):
+        user_accuracy = (self.correct_answers / self.total_questions) * 100 if self.total_questions > 0 else 0
+        other_users_accuracies = [random.randint(50, 100) for _ in range(5)]
+        
+        plt.figure(figsize=(10, 5))
+        
+        accuracies = other_users_accuracies + [user_accuracy]
+        names = [f"User {i+1}" for i in range(len(other_users_accuracies))] + ["You"]
+        
+        plt.bar(names, accuracies, color=['blue'] * len(other_users_accuracies) + ['green'])
+        plt.xlabel("Users")
+        plt.ylabel("Accuracy (%)")
+        plt.title("User Accuracy Comparison")
+        plt.ylim(0, 100)
+        
+        plt.show()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = ClimateGuessingGame(root)
+    root.mainloop()
