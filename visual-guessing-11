@@ -1,0 +1,181 @@
+class ClimateGuessingGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Climate Phenomena Guessing Game")
+        self.root.geometry("400x700")
+
+        pygame.mixer.init()
+
+        self.correct_sound = pygame.mixer.Sound("correct.wav")
+        self.incorrect_sound = pygame.mixer.Sound("incorrect.wav")
+        self.background_music = "background_music.mp3"
+
+        pygame.mixer.music.load(self.background_music)
+        pygame.mixer.music.play(-1)
+
+        self.players = []
+        self.current_player_index = 0
+        self.scores = []
+        self.total_questions = 0
+        self.correct_answers_list = []
+        
+        self.setup_multiplayer()
+
+    def setup_multiplayer(self):
+        self.multiplayer_window = tk.Toplevel(self.root)
+        self.multiplayer_window.title("Multiplayer Setup")
+        self.multiplayer_window.geometry("300x200")
+
+        tk.Label(self.multiplayer_window, text="Enter Player Names (comma separated):").pack(pady=10)
+        self.player_names_entry = tk.Entry(self.multiplayer_window)
+        self.player_names_entry.pack(pady=10)
+        tk.Button(self.multiplayer_window, text="Start Game", command=self.start_game).pack(pady=10)
+
+    def start_game(self):
+        player_names = self.player_names_entry.get().split(',')
+        self.players = [name.strip() for name in player_names]
+        self.scores = [0 for _ in self.players]
+        self.current_player_index = 0
+        self.multiplayer_window.destroy()
+        
+        self.score_label = tk.Label(self.root, text=f"Score: {self.scores[self.current_player_index]}", font=("Arial", 14))
+        self.score_label.pack(pady=10)
+        
+        self.player_label = tk.Label(self.root, text=f"Current Player: {self.players[self.current_player_index]}", font=("Arial", 14))
+        self.player_label.pack(pady=10)
+        
+        self.image_label = tk.Label(self.root)
+        self.image_label.pack(pady=10)
+        
+        self.options_easy = ["Hurricane", "Tornado", "Flood"]
+        self.options_medium = ["Wildfire", "Drought", "Blizzard"]
+        self.options_hard = ["Hurricane", "Tornado", "Flood", "Wildfire", "Drought", "Blizzard"]
+        
+        self.answer = tk.StringVar()
+        self.option_frame = tk.Frame(self.root)
+        self.option_frame.pack(pady=10)
+        
+        self.option_buttons = []
+        self.difficulty_level = tk.StringVar(value="Easy")
+        difficulty_radios = [("Easy", "Easy"), ("Medium", "Medium"), ("Hard", "Hard")]
+        for text, level in difficulty_radios:
+            btn = tk.Radiobutton(self.option_frame, text=text, variable=self.difficulty_level, value=level, command=self.update_options)
+            btn.pack(anchor=tk.W, padx=20)
+        
+        self.submit_button = tk.Button(self.root, text="Submit", command=self.check_answer)
+        self.submit_button.pack(pady=10)
+        
+        self.hint_button = tk.Button(self.root, text="Hint", command=self.show_hint)
+        self.hint_button.pack(pady=10)
+        
+        self.restart_button = tk.Button(self.root, text="Restart", command=self.restart_game)
+        self.restart_button.pack(pady=10)
+        
+        self.timer_label = tk.Label(self.root, text="Time left: 10", font=("Arial", 14))
+        self.timer_label.pack(pady=10)
+        
+        self.show_graph_button = tk.Button(self.root, text="Show Graph", command=self.show_graph)
+        self.show_graph_button.pack(pady=10)
+        
+        self.images = [
+            ("climate_phenomena_1.jpg", "Hurricane", "This phenomenon involves strong winds and heavy rains."),
+            ("climate_phenomena_2.jpg", "Tornado", "This is a rapidly rotating column of air."),
+            ("climate_phenomena_3.jpg", "Flood", "This happens when water overflows onto normally dry land."),
+            ("climate_phenomena_4.jpg", "Wildfire", "This is an uncontrolled fire in a forest or grassland."),
+            ("climate_phenomena_5.jpg", "Drought", "This is a prolonged period of low rainfall."),
+            ("climate_phenomena_6.jpg", "Blizzard", "This is a severe snowstorm with strong winds.")
+        ]
+        
+        self.current_image = None
+        self.time_left = 10
+        self.load_random_image()
+        self.update_timer()
+
+    def update_options(self):
+        difficulty = self.difficulty_level.get()
+        if difficulty == "Easy":
+            self.options = self.options_easy
+        elif difficulty == "Medium":
+            self.options = self.options_medium
+        elif difficulty == "Hard":
+            self.options = self.options_hard
+
+    def load_image(self, image_path):
+        image = Image.open(image_path)
+        image = image.resize((300, 300), Image.ANTIALIAS)
+        self.image = ImageTk.PhotoImage(image)
+        self.image_label.config(image=self.image)
+    
+    def load_random_image(self):
+        self.current_image = random.choice(self.images)
+        self.load_image(self.current_image[0])
+        self.time_left = 10
+        self.update_timer()
+    
+    def check_answer(self):
+        selected_option = self.answer.get()
+        correct_answer = self.current_image[1]
+        self.total_questions += 1
+        if selected_option == correct_answer:
+            self.scores[self.current_player_index] += 1
+            pygame.mixer.Sound.play(self.correct_sound)
+            messagebox.showinfo("Result", "Correct!")
+        else:
+            pygame.mixer.Sound.play(self.incorrect_sound)
+            messagebox.showinfo("Result", f"Incorrect! The correct answer is {correct_answer}.")
+        self.next_player()
+
+    def next_player(self):
+        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        self.update_ui_for_next_turn()
+
+    def update_ui_for_next_turn(self):
+        self.score_label.config(text=f"Score: {self.scores[self.current_player_index]}")
+        self.player_label.config(text=f"Current Player: {self.players[self.current_player_index]}")
+        self.load_random_image()
+
+    def restart_game(self):
+        self.scores = [0 for _ in self.players]
+        self.current_player_index = 0
+        self.score_label.config(text=f"Score: {self.scores[self.current_player_index]}")
+        self.player_label.config(text=f"Current Player: {self.players[self.current_player_index]}")
+        self.load_random_image()
+
+    def update_timer(self):
+        if self.time_left > 0:
+            self.timer_label.config(text=f"Time left: {self.time_left}")
+            self.time_left -= 1
+            self.root.after(1000, self.update_timer)
+        else:
+            self.end_game()
+
+    def end_game(self):
+        pygame.mixer.music.stop()
+        winner = self.players[self.scores.index(max(self.scores))]
+        messagebox.showinfo("Game Over", f"Game Over! The winner is {winner} with a score of {max(self.scores)}.")
+        self.restart_game()
+
+    def show_hint(self):
+        hint = self.current_image[2]
+        messagebox.showinfo("Hint", hint)
+    
+    def show_graph(self):
+        user_accuracies = [score / self.total_questions * 100 if self.total_questions > 0 else 0 for score in self.scores]
+        
+        plt.figure(figsize=(10, 5))
+        
+        accuracies = user_accuracies
+        names = self.players
+        
+        plt.bar(names, accuracies, color=['blue'] * len(self.players))
+        plt.xlabel("Players")
+        plt.ylabel("Accuracy (%)")
+        plt.title("Player Accuracy Comparison")
+        plt.ylim(0, 100)
+        
+        plt.show()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = ClimateGuessingGame(root)
+    root.mainloop()
