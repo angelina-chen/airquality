@@ -1,0 +1,277 @@
+class ClimateGuessingGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Climate Guessing Game")
+        self.root.geometry("800x600")
+
+        pygame.mixer.init()
+        self.correct_sound = pygame.mixer.Sound("correct.wav")
+        self.incorrect_sound = pygame.mixer.Sound("incorrect.wav")
+        pygame.mixer.music.load("background_music.mp3")
+        pygame.mixer.music.play(-1)
+
+        self.players = []
+        self.scores = []
+        self.achievements = {}
+        self.current_player_index = 0
+        self.total_questions = 0
+        self.time_left = 10
+        self.themes = {
+            "Default": "white",
+            "Dark": "black",
+            "Nature": "green",
+            "Ocean": "blue"
+        }
+        self.current_theme = "Default"
+
+        self.create_ui()
+
+    def create_ui(self):
+        self.title_label = tk.Label(self.root, text="Climate Guessing Game", font=("Arial", 24))
+        self.title_label.pack(pady=10)
+
+        self.setup_multiplayer_button = tk.Button(self.root, text="Setup Multiplayer", command=self.setup_multiplayer)
+        self.setup_multiplayer_button.pack(pady=10)
+
+        self.image_label = tk.Label(self.root)
+        self.image_label.pack(pady=10)
+
+        self.options_frame = tk.Frame(self.root)
+        self.options_frame.pack(pady=10)
+
+        self.answer = tk.StringVar()
+
+        self.submit_button = tk.Button(self.root, text="Submit", command=self.check_answer)
+        self.submit_button.pack(pady=10)
+
+        self.restart_button = tk.Button(self.root, text="Restart", command=self.restart_game)
+        self.restart_button.pack(pady=10)
+
+        self.timer_label = tk.Label(self.root, text="Time left: 10", font=("Arial", 14))
+        self.timer_label.pack(pady=10)
+
+        self.show_graph_button = tk.Button(self.root, text="Show Graph", command=self.show_graph)
+        self.show_graph_button.pack(pady=10)
+
+        self.achievements_button = tk.Button(self.root, text="Show Achievements", command=self.show_achievements)
+        self.achievements_button.pack(pady=10)
+
+        self.change_theme_button = tk.Button(self.root, text="Change Theme", command=self.change_theme)
+        self.change_theme_button.pack(pady=10)
+
+        self.map_button = tk.Button(self.root, text="Show Climate Map", command=self.show_climate_map)
+        self.map_button.pack(pady=10)
+
+        self.images = [
+            ("climate_phenomena_1.jpg", "Hurricane", "This phenomenon involves strong winds and heavy rains."),
+            ("climate_phenomena_2.jpg", "Tornado", "This is a rapidly rotating column of air."),
+            ("climate_phenomena_3.jpg", "Flood", "This happens when water overflows onto normally dry land."),
+            ("climate_phenomena_4.jpg", "Wildfire", "This is an uncontrolled fire in a forest or grassland."),
+            ("climate_phenomena_5.jpg", "Drought", "This is a prolonged period of low rainfall."),
+            ("climate_phenomena_6.jpg", "Blizzard", "This is a severe snowstorm with strong winds.")
+        ]
+
+        self.current_image = None
+        self.load_random_image()
+        self.update_timer()
+        self.apply_theme()
+
+    def setup_multiplayer(self):
+        self.multiplayer_window = tk.Toplevel(self.root)
+        self.multiplayer_window.title("Multiplayer Setup")
+        self.multiplayer_window.geometry("300x200")
+
+        tk.Label(self.multiplayer_window, text="Enter Player Names (comma separated):").pack(pady=10)
+        self.player_names_entry = tk.Entry(self.multiplayer_window)
+        self.player_names_entry.pack(pady=10)
+        tk.Button(self.multiplayer_window, text="Start Game", command=self.start_game).pack(pady=10)
+
+    def start_game(self):
+        player_names = self.player_names_entry.get().split(',')
+        self.players = [name.strip() for name in player_names]
+        self.scores = [0 for _ in self.players]
+        self.achievements = {name.strip(): [] for name in player_names}
+        self.current_player_index = 0
+        self.multiplayer_window.destroy()
+
+        self.score_label = tk.Label(self.root, text=f"Score: {self.scores[self.current_player_index]}", font=("Arial", 14))
+        self.score_label.pack(pady=10)
+
+        self.player_label = tk.Label(self.root, text=f"Current Player: {self.players[self.current_player_index]}", font=("Arial", 14))
+        self.player_label.pack(pady=10)
+
+        self.option_buttons = []
+
+        self.load_random_image()
+        self.update_timer()
+
+    def load_random_image(self):
+        self.current_image = random.choice(self.images)
+        self.img = tk.PhotoImage(file=self.current_image[0])
+        self.image_label.config(image=self.img)
+
+        self.create_options()
+
+    def create_options(self):
+        for btn in self.option_buttons:
+            btn.destroy()
+        self.option_buttons.clear()
+
+        options = [self.current_image[1]]
+        while len(options) < 4:
+            option = random.choice([img[1] for img in self.images])
+            if option not in options:
+                options.append(option)
+
+        random.shuffle(options)
+
+        for option in options:
+            btn = tk.Radiobutton(self.options_frame, text=option, variable=self.answer, value=option, font=("Arial", 14))
+            btn.pack(anchor=tk.W)
+            self.option_buttons.append(btn)
+
+    def check_answer(self):
+        selected_option = self.answer.get()
+        correct_answer = self.current_image[1]
+        self.total_questions += 1
+
+        if selected_option == correct_answer:
+            self.scores[self.current_player_index] += 1
+            pygame.mixer.Sound.play(self.correct_sound)
+            messagebox.showinfo("Result", "Correct!")
+            self.check_achievements(self.players[self.current_player_index])
+        else:
+            pygame.mixer.Sound.play(self.incorrect_sound)
+            messagebox.showinfo("Result", f"Incorrect! The correct answer is {correct_answer}.")
+
+        self.next_player()
+
+    def check_achievements(self, player_name):
+        score = self.scores[self.players.index(player_name)]
+        if score == 5 and "First Milestone" not in self.achievements[player_name]:
+            self.achievements[player_name].append("First Milestone")
+            messagebox.showinfo("Achievement Unlocked!", f"{player_name} unlocked: First Milestone (5 correct answers)")
+
+        if score == 10 and "Second Milestone" not in self.achievements[player_name]:
+            self.achievements[player_name].append("Second Milestone")
+            messagebox.showinfo("Achievement Unlocked!", f"{player_name} unlocked: Second Milestone (10 correct answers)")
+
+        if score == 15 and "Third Milestone" not in self.achievements[player_name]:
+            self.achievements[player_name].append("Third Milestone")
+            messagebox.showinfo("Achievement Unlocked!", f"{player_name} unlocked: Third Milestone (15 correct answers)")
+
+    def next_player(self):
+        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        self.update_ui_for_next_turn()
+
+    def update_ui_for_next_turn(self):
+        self.score_label.config(text=f"Score: {self.scores[self.current_player_index]}")
+        self.player_label.config(text=f"Current Player: {self.players[self.current_player_index]}")
+        self.load_random_image()
+
+    def update_timer(self):
+        if self.time_left > 0:
+            self.timer_label.config(text=f"Time left: {self.time_left}")
+            self.time_left -= 1
+            self.root.after(1000, self.update_timer)
+        else:
+            self.end_game()
+
+    def end_game(self):
+        pygame.mixer.music.stop()
+        winner = self.players[self.scores.index(max(self.scores))]
+        messagebox.showinfo("Game Over", f"Game Over! The winner is {winner} with a score of {max(self.scores)}.")
+        self.restart_game()
+
+    def restart_game(self):
+        self.scores = [0 for _ in self.players]
+        self.current_player_index = 0
+        self.score_label.config(text=f"Score: {self.scores[self.current_player_index]}")
+        self.player_label.config(text=f"Current Player: {self.players[self.current_player_index]}")
+        self.load_random_image()
+
+    def show_graph(self):
+        user_accuracies = [score / self.total_questions * 100 if self.total_questions > 0 else 0 for score in self.scores]
+
+        plt.figure(figsize=(10, 5))
+        accuracies = user_accuracies
+        names = self.players
+
+        plt.bar(names, accuracies, color=['blue'] * len(self.players))
+        plt.xlabel("Players")
+        plt.ylabel("Accuracy (%)")
+        plt.title("Player Accuracy Comparison")
+        plt.ylim(0, 100)
+
+        plt.show()
+
+    def show_achievements(self):
+        achievement_message = ""
+        for player, achievements in self.achievements.items():
+            achievement_message += f"{player}: {', '.join(achievements)}\n"
+
+        if not achievement_message:
+            achievement_message = "No achievements yet."
+
+        messagebox.showinfo("Achievements", achievement_message)
+
+    def change_theme(self):
+        self.theme_window = tk.Toplevel(self.root)
+        self.theme_window.title("Change Theme")
+        self.theme_window.geometry("300x200")
+
+        tk.Label(self.theme_window, text="Select Theme:").pack(pady=10)
+        for theme, color in self.themes.items():
+            tk.Radiobutton(self.theme_window, text=theme, variable=self.current_theme, value=theme, command=self.apply_theme).pack(anchor=tk.W)
+
+    def apply_theme(self):
+        selected_theme = self.current_theme.get()
+        self.root.config(bg=self.themes[selected_theme])
+        self.title_label.config(bg=self.themes[selected_theme])
+        self.image_label.config(bg=self.themes[selected_theme])
+        self.options_frame.config(bg=self.themes[selected_theme])
+        self.submit_button.config(bg=self.themes[selected_theme])
+        self.restart_button.config(bg=self.themes[selected_theme])
+        self.timer_label.config(bg=self.themes[selected_theme])
+        self.show_graph_button.config(bg=self.themes[selected_theme])
+        self.achievements_button.config(bg=self.themes[selected_theme])
+        self.change_theme_button.config(bg=self.themes[selected_theme])
+        self.map_button.config(bg=self.themes[selected_theme])
+
+    def show_climate_map(self):
+        map_window = tk.Toplevel(self.root)
+        map_window.title("Climate Phenomena Map")
+        map_window.geometry("600x400")
+
+        map_view = TkinterMapView(map_window, width=600, height=400, corner_radius=0)
+        map_view.pack()
+
+        locations = [
+            {"name": "Hurricane", "coords": (29.76, -95.37)},
+            {"name": "Tornado", "coords": (35.22, -97.44)},
+            {"name": "Flood", "coords": (34.74, -92.33)},
+            {"name": "Wildfire", "coords": (34.05, -118.24)},
+            {"name": "Drought", "coords": (36.77, -119.41)},
+            {"name": "Blizzard", "coords": (44.97, -93.26)}
+        ]
+
+        for location in locations:
+            marker = map_view.set_marker(location["coords"][0], location["coords"][1], text=location["name"])
+            marker.bind_click(lambda e, loc=location: self.show_climate_info(loc["name"]))
+
+    def show_climate_info(self, name):
+        info_window = tk.Toplevel(self.root)
+        info_window.title(f"{name} Information")
+        info_window.geometry("300x200")
+
+        info_label = tk.Label(info_window, text=f"Information about {name}", font=("Arial", 14))
+        info_label.pack(pady=10)
+        description = next((img[2] for img in self.images if img[1] == name), "No description available.")
+        info_text = tk.Label(info_window, text=description, font=("Arial", 12))
+        info_text.pack(pady=10)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = ClimateGuessingGame(root)
+    root.mainloop()
