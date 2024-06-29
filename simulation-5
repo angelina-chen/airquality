@@ -1,0 +1,119 @@
+import datetime
+import requests
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+
+class ClimateSimulator:
+    def __init__(self, zip_code, api_key):
+        self.zip_code = zip_code
+        self.api_key = api_key
+        self.data = []
+    
+    def fetch_current_weather(self):
+        """Fetch current weather data from OpenWeatherMap API."""
+        url = f"http://api.openweathermap.org/data/2.5/weather?zip={self.zip_code}&appid={self.api_key}&units=metric"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            data = response.json()
+            temperature = data['main']['temp']
+            humidity = data['main']['humidity']
+            precipitation = data['rain']['1h'] if 'rain' in data and '1h' in data['rain'] else 0
+            wind_speed = data['wind']['speed']
+            return temperature, humidity, precipitation, wind_speed
+        else:
+            print(f"Error fetching weather data: {response.status_code}")
+            return None
+    
+    def generate_data(self, start_date, end_date):
+        """Generate simulated climate data for a given time period."""
+        current_date = start_date
+        while current_date <= end_date:
+            # Fetch current weather data
+            weather_data = self.fetch_current_weather()
+            
+            if weather_data:
+                temperature, humidity, precipitation, wind_speed = weather_data
+                self.data.append({
+                    'date': current_date,
+                    'temperature': temperature,
+                    'humidity': humidity,
+                    'precipitation': precipitation,
+                    'wind_speed': wind_speed
+                })
+            
+            # Move to the next day
+            current_date += datetime.timedelta(days=1)
+    
+    def smooth_data(self, window_size=3):
+        """Apply simple moving average smoothing to temperature data."""
+        temperatures = [data['temperature'] for data in self.data]
+        smoothed_temps = np.convolve(temperatures, np.ones(window_size)/window_size, mode='same')
+        
+        # Update the data with smoothed temperatures
+        for i, data in enumerate(self.data):
+            data['temperature'] = smoothed_temps[i]
+    
+    def plot_data(self):
+        """Plot the simulated climate data."""
+        dates = [data['date'] for data in self.data]
+        temperatures = [data['temperature'] for data in self.data]
+        humidities = [data['humidity'] for data in self.data]
+        precipitations = [data['precipitation'] for data in self.data]
+        wind_speeds = [data['wind_speed'] for data in self.data]
+        
+        # Create a 3D figure
+        fig = plt.figure(figsize=(12, 8))
+        
+        # Temperature plot
+        ax1 = fig.add_subplot(221, projection='3d')
+        ax1.scatter(dates, temperatures, range(len(dates)), c=temperatures, cmap='coolwarm')
+        ax1.set_title('Temperature (Celsius)')
+        ax1.set_xlabel('Date')
+        ax1.set_ylabel('Temperature (Celsius)')
+        ax1.set_zlabel('Days')
+        
+        # Humidity plot
+        ax2 = fig.add_subplot(222, projection='3d')
+        ax2.scatter(dates, humidities, range(len(dates)), c=humidities, cmap='Greens')
+        ax2.set_title('Humidity (%)')
+        ax2.set_xlabel('Date')
+        ax2.set_ylabel('Humidity (%)')
+        ax2.set_zlabel('Days')
+        
+        # Precipitation plot
+        ax3 = fig.add_subplot(223, projection='3d')
+        ax3.scatter(dates, precipitations, range(len(dates)), c=precipitations, cmap='Blues')
+        ax3.set_title('Precipitation (mm)')
+        ax3.set_xlabel('Date')
+        ax3.set_ylabel('Precipitation (mm)')
+        ax3.set_zlabel('Days')
+        
+        # Wind Speed plot
+        ax4 = fig.add_subplot(224, projection='3d')
+        ax4.scatter(dates, wind_speeds, range(len(dates)), c=wind_speeds, cmap='Oranges')
+        ax4.set_title('Wind Speed (km/h)')
+        ax4.set_xlabel('Date')
+        ax4.set_ylabel('Wind Speed (km/h)')
+        ax4.set_zlabel('Days')
+        
+        plt.tight_layout()
+        plt.show()
+
+if __name__ == "__main__":
+    zip_code = "94040"  # Replace with the user's zip code
+    api_key = "your_openweathermap_api_key"  # Replace with your API key
+    
+    simulator = ClimateSimulator(zip_code, api_key)
+    
+    # Generate simulated data for the last 30 days
+    start_date = datetime.datetime.now() - datetime.timedelta(days=30)
+    end_date = datetime.datetime.now()
+    simulator.generate_data(start_date, end_date)
+    
+    # Smooth temperature data
+    simulator.smooth_data(window_size=5)  # Adjust window size for smoother or more aggressive smoothing
+    
+    # Plot the simulated climate data
+    simulator.plot_data()
