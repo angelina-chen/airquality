@@ -1,0 +1,79 @@
+import datetime
+import random
+import matplotlib.pyplot as plt
+
+class ClimateSimulator:
+    def __init__(self, zip_code):
+        self.zip_code = zip_code
+        self.data = []
+    
+    def generate_data(self, start_date, end_date):
+        """Generate simulated climate data for a given time period."""
+        current_date = start_date
+        while current_date <= end_date:
+            temperature = random.uniform(0, 30)  # Celsius
+            humidity = random.uniform(20, 80)   # Percentage
+            precipitation = random.uniform(0, 10)  # Millimeters
+            wind_speed = random.uniform(0, 20)  # km/h
+            
+            # Simulate climate data for the zip code
+            self.data.append({
+                'date': current_date,
+                'temperature': temperature,
+                'humidity': humidity,
+                'precipitation': precipitation,
+                'wind_speed': wind_speed
+            })
+            
+            # Move to the next day
+            current_date += datetime.timedelta(days=1)
+    
+    def plot_data(self):
+        """Plot the simulated climate data."""
+        dates = [data['date'] for data in self.data]
+        temperatures = [data['temperature'] for data in self.data]
+        humidities = [data['humidity'] for data in self.data]
+        precipitations = [data['precipitation'] for data in self.data]
+        wind_speeds = [data['wind_speed'] for data in self.data]
+        
+        plt.figure(figsize=(12, 8))
+        
+        plt.subplot(2, 2, 1)
+        plt.plot(dates, temperatures, marker='o', linestyle='-', color='r')
+        plt.title('Temperature (Celsius)')
+        plt.xlabel('Date')
+        plt.ylabel('Temperature (Celsius)')
+        
+        plt.subplot(2, 2, 2)
+        plt.plot(dates, humidities, marker='o', linestyle='-', color='g')
+        plt.title('Humidity (%)')
+        plt.xlabel('Date')
+        plt.ylabel('Humidity (%)')
+        
+        plt.subplot(2, 2, 3)
+        plt.plot(dates, precipitations, marker='o', linestyle='-', color='b')
+        plt.title('Precipitation (mm)')
+        plt.xlabel('Date')
+        plt.ylabel('Precipitation (mm)')
+        
+        plt.subplot(2, 2, 4)
+        plt.plot(dates, wind_speeds, marker='o', linestyle='-', color='m')
+        plt.title('Wind Speed (km/h)')
+        plt.xlabel('Date')
+        plt.ylabel('Wind Speed (km/h)')
+        
+        plt.tight_layout()
+        plt.show()
+
+if __name__ == "__main__":
+    zip_code = "94040"  # Replace with the user's zip code
+    
+    simulator = ClimateSimulator(zip_code)
+    
+    # Generate simulated data for the last 30 days
+    start_date = datetime.datetime.now() - datetime.timedelta(days=30)
+    end_date = datetime.datetime.now()
+    simulator.generate_data(start_date, end_date)
+    
+    # Plot the simulated climate data
+    simulator.plot_data()
