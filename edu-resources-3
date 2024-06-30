@@ -1,0 +1,168 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+from IPython.display import display, HTML
+import requests
+
+class AirQualityEducation:
+    def __init__(self):
+        self.resources = []
+        self.explored_topics = []
+
+    def add_resource(self, title, description, url, category):
+        resource = {
+            'title': title,
+            'description': description,
+            'url': url,
+            'category': category
+        }
+        self.resources.append(resource)
+
+    def display_resources(self, category=None):
+        if category:
+            filtered_resources = [res for res in self.resources if res['category'] == category]
+        else:
+            filtered_resources = self.resources
+
+        for resource in filtered_resources:
+            print(f"Title: {resource['title']}")
+            print(f"Description: {resource['description']}")
+            print(f"URL: {resource['url']}")
+            print(f"Category: {resource['category']}")
+            print("-" * 50)
+            self.explored_topics.append(resource['title'])
+
+    def plot_exploration_path(self):
+        if not self.explored_topics:
+            print("No topics explored yet.")
+            return
+
+        G = nx.DiGraph()
+        
+        # Add nodes
+        for topic in self.explored_topics:
+            G.add_node(topic)
+
+        # Add edges (assuming the user explores topics sequentially)
+        for i in range(len(self.explored_topics) - 1):
+            G.add_edge(self.explored_topics[i], self.explored_topics[i + 1])
+
+        plt.figure(figsize=(12, 8))
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos, with_labels=True, node_color='skyblue', node_size=2500, font_size=10, font_weight='bold', arrowstyle='-|>', arrowsize=20, edge_color='black')
+        plt.title("User Exploration Path")
+        plt.show()
+
+    def display_resources_in_html(self, category=None):
+        if category:
+            filtered_resources = [res for res in self.resources if res['category'] == category]
+        else:
+            filtered_resources = self.resources
+
+        html_content = "<html><head><title>Air Quality Resources</title></head><body>"
+        html_content += "<h1>Air Quality Educational Resources</h1>"
+        for resource in filtered_resources:
+            html_content += f"<h2>{resource['title']}</h2>"
+            html_content += f"<p>{resource['description']}</p>"
+            html_content += f"<a href='{resource['url']}'>{resource['url']}</a>"
+            html_content += f"<p>Category: {resource['category']}</p>"
+            html_content += "<hr>"
+            self.explored_topics.append(resource['title'])
+
+        html_content += "</body></html>"
+        return HTML(html_content)
+
+    def search_resources(self, keyword):
+        return [res for res in self.resources if keyword.lower() in res['title'].lower() or keyword.lower() in res['description'].lower()]
+
+    def plot_category_distribution(self):
+        categories = [res['category'] for res in self.resources]
+        category_counts = {category: categories.count(category) for category in set(categories)}
+
+        plt.figure(figsize=(10, 6))
+        plt.bar(category_counts.keys(), category_counts.values(), color='skyblue')
+        plt.xlabel('Category')
+        plt.ylabel('Number of Resources')
+        plt.title('Distribution of Educational Resources by Category')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
+        plt.savefig("category_distribution.png")
+        display(Image(filename="category_distribution.png"))
+        plt.show()
+
+    def generate_summary_report(self):
+        html_content = self.display_resources_in_html()
+        self.plot_category_distribution()
+        
+        report_html = f"""
+        <html>
+        <head>
+            <title>Air Quality Education Summary Report</title>
+        </head>
+        <body>
+            <h1>Air Quality Education Summary Report</h1>
+            {html_content.data}
+            <h2>Category Distribution</h2>
+            <img src="category_distribution.png" alt="Category Distribution">
+        </body>
+        </html>
+        """
+        display(HTML(report_html))
+
+    def display_external_image(self, url):
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            img = Image(response.content)
+            display(img)
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching image: {e}")
+
+# Example usage
+if __name__ == "__main__":
+    air_quality_edu = AirQualityEducation()
+
+    air_quality_edu.add_resource(
+        title="Understanding Air Quality",
+        description="An in-depth guide to understanding air quality and its impact on health.",
+        url="https://www.example.com/understanding-air-quality",
+        category="Health"
+    )
+
+    air_quality_edu.add_resource(
+        title="Air Quality Monitoring",
+        description="How to monitor air quality in your area and interpret the data.",
+        url="https://www.example.com/air-quality-monitoring",
+        category="Technology"
+    )
+
+    air_quality_edu.add_resource(
+        title="Effects of Air Pollution",
+        description="A study on the effects of air pollution on the environment and human health.",
+        url="https://www.example.com/effects-of-air-pollution",
+        category="Environment"
+    )
+
+    air_quality_edu.display_resources()
+
+    print("Resources in HTML format:")
+    html_content = air_quality_edu.display_resources_in_html()
+    display(html_content)
+
+    print("Searching for resources with keyword 'monitoring':")
+    search_results = air_quality_edu.search_resources("monitoring")
+    for res in search_results:
+        print(f"Title: {res['title']}")
+        print(f"Description: {res['description']}")
+        print(f"URL: {res['url']}")
+        print(f"Category: {res['category']}")
+        print("-" * 50)
+
+    air_quality_edu.plot_category_distribution()
+
+    air_quality_edu.generate_summary_report()
+
+    air_quality_edu.display_external_image("https://www.example.com/sample-image.jpg")
+
+    # Plot the exploration path
+    air_quality_edu.plot_exploration_path()
