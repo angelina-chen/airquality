@@ -1,0 +1,50 @@
+import requests
+
+class AirQualityEducation:
+    def __init__(self):
+        self.resources = []
+        self.explored_topics = []
+    
+    # Existing methods...
+
+    def custom_location_search(self, location_type="city"):
+        base_url = "https://api.openaq.org/v1/latest"
+        valid_location_types = ["city", "zipcode"]
+        
+        if location_type not in valid_location_types:
+            print(f"Invalid location type. Please choose from: {valid_location_types}")
+            return
+        
+        location_input = input(f"Enter the {location_type} name or code: ").strip()
+        
+        if location_type == "city":
+            params = {'city': location_input}
+        elif location_type == "zipcode":
+            params = {'location': location_input}
+        
+        try:
+            response = requests.get(base_url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            if 'results' in data and len(data['results']) > 0:
+                print(f"Air quality data for {location_input}:")
+                for result in data['results']:
+                    print(f"Location: {result['location']}")
+                    print(f"City: {result['city']}")
+                    print(f"Country: {result['country']}")
+                    for measurement in result['measurements']:
+                        print(f"  Parameter: {measurement['parameter']}")
+                        print(f"  Value: {measurement['value']} {measurement['unit']}")
+                        print(f"  Last Updated: {measurement['lastUpdated']}")
+                    print("-" * 50)
+            else:
+                print(f"No air quality data found for {location_input}.")
+        
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching air quality data: {e}")
+
+air_quality_education = AirQualityEducation()
+
+# Perform a custom location search
+air_quality_education.custom_location_search("city")  # Change to "zipcode" for ZIP code search
