@@ -1,0 +1,268 @@
+import networkx as nx
+import plotly.graph_objects as go
+import plotly.express as px
+import requests
+from PIL import Image
+from IPython.display import display, HTML
+from io import BytesIO
+
+class AirQualityEducation:
+    def __init__(self):
+        self.resources = []
+        self.explored_topics = []
+
+    def add_resource(self, title, description, url, category, tags=[], rating=None):
+        resource = {
+            'title': title,
+            'description': description,
+            'url': url,
+            'category': category,
+            'tags': tags,
+            'rating': rating  # Initialize with None
+        }
+        self.resources.append(resource)
+
+    def display_resources(self, category=None):
+        if category:
+            filtered_resources = [res for res in self.resources if res['category'] == category]
+        else:
+            filtered_resources = self.resources
+
+        for resource in filtered_resources:
+            print(f"Title: {resource['title']}")
+            print(f"Description: {resource['description']}")
+            print(f"URL: {resource['url']}")
+            print(f"Category: {resource['category']}")
+            print(f"Tags: {', '.join(resource['tags'])}")
+            print(f"Rating: {resource['rating'] if resource['rating'] is not None else 'Not rated'}")
+            print("-" * 50)
+            self.explored_topics.append(resource['title'])
+
+    def rate_resource(self, title, rating):
+        for resource in self.resources:
+            if resource['title'] == title:
+                if 1 <= rating <= 5:  # Assuming ratings are between 1 to 5
+                    resource['rating'] = rating
+                    print(f"Rated resource '{title}' with {rating} stars.")
+                else:
+                    print("Rating must be between 1 and 5.")
+                return
+        print(f"Resource '{title}' not found.")
+
+    def plot_exploration_path(self):
+        if not self.explored_topics:
+            print("No topics explored yet.")
+            return
+
+        G = nx.DiGraph()
+        
+        for topic in self.explored_topics:
+            G.add_node(topic)
+
+        for i in range(len(self.explored_topics) - 1):
+            G.add_edge(self.explored_topics[i], self.explored_topics[i + 1])
+
+        pos = nx.spring_layout(G)
+        edge_x = []
+        edge_y = []
+
+        for edge in G.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_x.append(x0)
+            edge_x.append(x1)
+            edge_x.append(None)
+            edge_y.append(y0)
+            edge_y.append(y1)
+            edge_y.append(None)
+
+        edge_trace = go.Scatter(
+            x=edge_x, y=edge_y,
+            line=dict(width=0.5, color='#888'),
+            hoverinfo='none',
+            mode='lines')
+
+        node_x = []
+        node_y = []
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
+
+        node_trace = go.Scatter(
+            x=node_x, y=node_y,
+            mode='markers+text',
+            text=[node for node in G.nodes()],
+            marker=dict(
+                showscale=True,
+                colorscale='YlGnBu',
+                size=10,
+                colorbar=dict(
+                    thickness=15,
+                    title='Node Connections',
+                    xanchor='left',
+                    titleside='right'
+                ),
+            ),
+            textposition='top center'
+        )
+
+        fig = go.Figure(data=[edge_trace, node_trace],
+                        layout=go.Layout(
+                            title='User Exploration Path',
+                            showlegend=False,
+                            hovermode='closest',
+                            margin=dict(b=0, l=0, r=0, t=40),
+                            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
+                        )
+        fig.show()
+
+    def display_resources_in_html(self, category=None):
+        if category:
+            filtered_resources = [res for res in self.resources if res['category'] == category]
+        else:
+            filtered_resources = self.resources
+
+        html_content = "<html><head><title>Air Quality Resources</title></head><body>"
+        html_content += "<h1>Air Quality Educational Resources</h1>"
+        for resource in filtered_resources:
+            html_content += f"<h2>{resource['title']}</h2>"
+            html_content += f"<p>{resource['description']}</p>"
+            html_content += f"<a href='{resource['url']}'>{resource['url']}</a>"
+            html_content += f"<p>Category: {resource['category']}</p>"
+            html_content += f"<p>Tags: {', '.join(resource['tags'])}</p>"
+            html_content += f"<p>Rating: {resource['rating'] if resource['rating'] is not None else 'Not rated'}</p>"
+            html_content += "<hr>"
+            self.explored_topics.append(resource['title'])
+
+        html_content += "</body></html>"
+        return HTML(html_content)
+
+    def advanced_search_resources(self, keyword=None, category=None, case_sensitive=False, partial_match=False, logical_operator='AND', tags=[]):
+        def match_criteria(resource, keyword, category, case_sensitive, partial_match, tags):
+            if not case_sensitive:
+                keyword = keyword.lower()
+                resource_title = resource['title'].lower()
+                resource_description = resource['description'].lower()
+            else:
+                resource_title = resource['title']
+                resource_description = resource['description']
+
+            keyword_match = (keyword in resource_title) if partial_match else (keyword == resource_title)
+            description_match = (keyword in resource_description) if partial_match else (keyword == resource_description)
+            category_match = (resource['category'] == category) if category else True
+            tags_match = all(tag in resource['tags'] for tag in tags) if tags else True
+
+            if logical_operator == 'AND':
+                return keyword_match and description_match and category_match and tags_match
+            elif logical_operator == 'OR':
+                return keyword_match or description_match or category_match or tags_match
+            else:
+                return False
+
+        filtered_resources = [res for res in self.resources if match_criteria(res, keyword, category, case_sensitive, partial_match, tags)]
+
+        return filtered_resources
+
+    def plot_category_distribution(self):
+        categories = [res['category'] for res in self.resources]
+        category_counts = {category: categories.count(category) for category in set(categories)}
+
+        fig = px.bar(x=list(category_counts.keys()), y=list(category_counts.values()), labels={'x': 'Category', 'y': 'Number of Resources'}, title='Distribution of Educational Resources by Category')
+        fig.show()
+
+    def generate_summary_report(self):
+        html_content = self.display_resources_in_html()
+        self.plot_category_distribution()
+        
+        report_html = f"""
+        <html>
+        <head>
+            <title>Air Quality Education Summary Report</title>
+        </head>
+        <body>
+            <h1>Air Quality Education Summary Report</h1>
+            {html_content.data}
+            <h2>Category Distribution</h2>
+            <div id="category_distribution"></div>
+        </body>
+        </html>
+        """
+        display(HTML(report_html))
+
+    def display_external_image(self, url):
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            img = Image.open(BytesIO(response.content))
+            display(img)
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching image: {e}")
+
+    def update_resource(self, title, new_title=None, new_description=None, new_url=None, new_category=None, new_tags=None):
+        for resource in self.resources:
+            if resource['title'] == title:
+                if new_title:
+                    resource['title'] = new_title
+                if new_description:
+                    resource['description'] = new_description
+                if new_url:
+                    resource['url'] = new_url
+                if new_category:
+                    resource['category'] = new_category
+                if new_tags is not None:
+                    resource['tags'] = new_tags
+                print(f"Resource '{title}' updated successfully.")
+                return
+        print(f"Resource '{title}' not found.")
+
+    def delete_resource(self, title):
+        for resource in self.resources:
+            if resource['title'] == title:
+                self.resources.remove(resource)
+                print(f"Resource '{title}' deleted successfully.")
+                return
+        print(f"Resource '{title}' not found.")
+
+    def search_by_tag(self, tag):
+        return [res for res in self.resources if tag in res['tags']]
+
+    def add_tag_to_resource(self, title, tag):
+        for resource in self.resources:
+            if resource['title'] == title:
+                resource['tags'].append(tag)
+                print(f"Tag '{tag}' added to resource '{title}'.")
+                return
+        print(f"Resource '{title}' not found.")
+
+    def remove_tag_from_resource(self, title, tag):
+        for resource in self.resources:
+            if resource['title'] == title:
+                if tag in resource['tags']:
+                    resource['tags'].remove(tag)
+                    print(f"Tag '{tag}' removed from resource '{title}'.")
+                else:
+                    print(f"Tag '{tag}' not found in resource '{title}'.")
+                return
+        print(f"Resource '{title}' not found.")
+
+if __name__ == "__main__":
+    air_quality_edu = AirQualityEducation()
+
+    # Adding resources with ratings
+    air_quality_edu.add_resource("Understanding Air Quality", "A comprehensive guide to understanding air quality.", "https://www.example.com/air-quality-guide", "Education", tags=["education", "air quality"], rating=4)
+    air_quality_edu.add_resource("Air Quality Monitoring Techniques", "Techniques for monitoring air quality in urban areas.", "https://www.example.com/monitoring-techniques", "Technology", tags=["technology", "air quality"], rating=5)
+    air_quality_edu.add_resource("Effects of Air Pollution on Health", "Impact of air pollution on human health and respiratory diseases.", "https://www.example.com/health-effects", "Health", tags=["health", "air quality"], rating=3)
+
+    # Displaying resources with ratings
+    air_quality_edu.display_resources()
+
+    # Rating a resource
+    air_quality_edu.rate_resource("Understanding Air Quality", 5)
+
+    # Displaying updated ratings
+    air_quality_edu.display_resources()
+
+    # Generating a summary report
+    air_quality_edu.generate_summary_report()
