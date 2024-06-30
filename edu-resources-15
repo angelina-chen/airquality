@@ -1,0 +1,78 @@
+import requests
+import re
+
+class AirQualityEducation:
+    def __init__(self):
+        self.resources = []
+        self.explored_topics = []
+    
+    # Existing methods...
+
+    def custom_location_search(self, location_type="city"):
+        base_url = "https://api.openaq.org/v1/latest"
+        valid_location_types = ["city", "zipcode"]
+        
+        if location_type not in valid_location_types:
+            print(f"Invalid location type. Please choose from: {valid_location_types}")
+            return
+        
+        location_input = input(f"Enter the {location_type} name or code: ").strip()
+        
+        # Input validation
+        if location_type == "city" and not re.match("^[a-zA-Z\s]+$", location_input):
+            print("Invalid city name. Please enter a valid city name using only letters and spaces.")
+            return
+        elif location_type == "zipcode" and not re.match("^\d{5}$", location_input):
+            print("Invalid ZIP code. Please enter a valid 5-digit ZIP code.")
+            return
+
+        additional_params = {}
+        date_from = input("Enter the start date (YYYY-MM-DD) for air quality data or press enter to skip: ").strip()
+        if date_from:
+            additional_params['date_from'] = date_from
+        
+        date_to = input("Enter the end date (YYYY-MM-DD) for air quality data or press enter to skip: ").strip()
+        if date_to:
+            additional_params['date_to'] = date_to
+
+        limit = input("Enter the number of results to limit (default is 100) or press enter to skip: ").strip()
+        if limit.isdigit():
+            additional_params['limit'] = int(limit)
+        elif limit:
+            print("Invalid limit value. Defaulting to 100.")
+        
+        params = {'city': location_input} if location_type == "city" else {'location': location_input}
+        params.update(additional_params)
+        
+        try:
+            response = requests.get(base_url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            if 'results' in data and len(data['results']) > 0:
+                print(f"\nAir quality data for {location_input}:")
+                for result in data['results']:
+                    print(f"Location: {result['location']}")
+                    print(f"City: {result['city']}")
+                    print(f"Country: {result['country']}")
+                    for measurement in result['measurements']:
+                        print(f"  Parameter: {measurement['parameter']}")
+                        print(f"  Value: {measurement['value']} {measurement['unit']}")
+                        print(f"  Last Updated: {measurement['lastUpdated']}")
+                    print("-" * 50)
+            else:
+                print(f"No air quality data found for {location_input}.")
+        
+        except requests.exceptions.HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+        except requests.exceptions.ConnectionError as conn_err:
+            print(f"Connection error occurred: {conn_err}")
+        except requests.exceptions.Timeout as timeout_err:
+            print(f"Timeout error occurred: {timeout_err}")
+        except requests.exceptions.RequestException as req_err:
+            print(f"An error occurred: {req_err}")
+
+air_quality_education = AirQualityEducation()
+
+# Perform a custom location search
+air_quality_education.custom_location_search("city")  # Change to "zipcode" for ZIP code search
