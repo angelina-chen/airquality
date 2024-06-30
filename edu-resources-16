@@ -1,0 +1,107 @@
+import tkinter as tk
+from tkinter import messagebox
+import requests
+import re
+
+class AirQualityEducation:
+    def __init__(self):
+        self.resources = []
+        self.explored_topics = []
+    
+    def custom_location_search(self, location_type, location_input, date_from, date_to, limit):
+        base_url = "https://api.openaq.org/v1/latest"
+        valid_location_types = ["city", "zipcode"]
+        
+        if location_type not in valid_location_types:
+            messagebox.showerror("Error", f"Invalid location type. Please choose from: {valid_location_types}")
+            return
+        
+        if location_type == "city" and not re.match("^[a-zA-Z\s]+$", location_input):
+            messagebox.showerror("Error", "Invalid city name. Please enter a valid city name using only letters and spaces.")
+            return
+        elif location_type == "zipcode" and not re.match("^\d{5}$", location_input):
+            messagebox.showerror("Error", "Invalid ZIP code. Please enter a valid 5-digit ZIP code.")
+            return
+
+        additional_params = {}
+        if date_from:
+            additional_params['date_from'] = date_from
+        if date_to:
+            additional_params['date_to'] = date_to
+        if limit.isdigit():
+            additional_params['limit'] = int(limit)
+        elif limit:
+            messagebox.showinfo("Info", "Invalid limit value. Defaulting to 100.")
+        
+        params = {'city': location_input} if location_type == "city" else {'location': location_input}
+        params.update(additional_params)
+        
+        try:
+            response = requests.get(base_url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            if 'results' in data and len(data['results']) > 0:
+                result_str = f"Air quality data for {location_input}:\n"
+                for result in data['results']:
+                    result_str += f"\nLocation: {result['location']}"
+                    result_str += f"\nCity: {result['city']}"
+                    result_str += f"\nCountry: {result['country']}"
+                    for measurement in result['measurements']:
+                        result_str += f"\n  Parameter: {measurement['parameter']}"
+                        result_str += f"\n  Value: {measurement['value']} {measurement['unit']}"
+                        result_str += f"\n  Last Updated: {measurement['lastUpdated']}"
+                    result_str += "\n" + "-" * 50
+                messagebox.showinfo("Results", result_str)
+            else:
+                messagebox.showinfo("No Data", f"No air quality data found for {location_input}.")
+        
+        except requests.exceptions.HTTPError as http_err:
+            messagebox.showerror("HTTP Error", f"HTTP error occurred: {http_err}")
+        except requests.exceptions.ConnectionError as conn_err:
+            messagebox.showerror("Connection Error", f"Connection error occurred: {conn_err}")
+        except requests.exceptions.Timeout as timeout_err:
+            messagebox.showerror("Timeout Error", f"Timeout error occurred: {timeout_err}")
+        except requests.exceptions.RequestException as req_err:
+            messagebox.showerror("Error", f"An error occurred: {req_err}")
+
+def run_gui():
+    def search():
+        location_type = location_type_var.get()
+        location_input = location_entry.get()
+        date_from = date_from_entry.get()
+        date_to = date_to_entry.get()
+        limit = limit_entry.get()
+        air_quality_education.custom_location_search(location_type, location_input, date_from, date_to, limit)
+
+    air_quality_education = AirQualityEducation()
+
+    root = tk.Tk()
+    root.title("Air Quality Search")
+
+    tk.Label(root, text="Location Type:").grid(row=0, column=0, padx=10, pady=10)
+    location_type_var = tk.StringVar(value="city")
+    tk.OptionMenu(root, location_type_var, "city", "zipcode").grid(row=0, column=1, padx=10, pady=10)
+
+    tk.Label(root, text="Location:").grid(row=1, column=0, padx=10, pady=10)
+    location_entry = tk.Entry(root)
+    location_entry.grid(row=1, column=1, padx=10, pady=10)
+
+    tk.Label(root, text="Start Date (YYYY-MM-DD):").grid(row=2, column=0, padx=10, pady=10)
+    date_from_entry = tk.Entry(root)
+    date_from_entry.grid(row=2, column=1, padx=10, pady=10)
+
+    tk.Label(root, text="End Date (YYYY-MM-DD):").grid(row=3, column=0, padx=10, pady=10)
+    date_to_entry = tk.Entry(root)
+    date_to_entry.grid(row=3, column=1, padx=10, pady=10)
+
+    tk.Label(root, text="Limit:").grid(row=4, column=0, padx=10, pady=10)
+    limit_entry = tk.Entry(root)
+    limit_entry.grid(row=4, column=1, padx=10, pady=10)
+
+    tk.Button(root, text="Search", command=search).grid(row=5, column=0, columnspan=2, pady=20)
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    run_gui()
