@@ -1,0 +1,51 @@
+class AirQualityEducation:
+    def __init__(self):
+        self.resources = []
+
+    def add_resource(self, title, description, url, category):
+        resource = {
+            'title': title,
+            'description': description,
+            'url': url,
+            'category': category
+        }
+        self.resources.append(resource)
+
+    def display_resources(self, category=None):
+        if category:
+            filtered_resources = [res for res in self.resources if res['category'] == category]
+        else:
+            filtered_resources = self.resources
+
+        for resource in filtered_resources:
+            print(f"Title: {resource['title']}")
+            print(f"Description: {resource['description']}")
+            print(f"URL: {resource['url']}")
+            print(f"Category: {resource['category']}")
+            print("-" * 50)
+
+    def get_resources_by_category(self, category):
+        return [res for res in self.resources if res['category'] == category]
+
+    def display_resources_in_html(self, category=None):
+        if category:
+            filtered_resources = [res for res in self.resources if res['category'] == category]
+        else:
+            filtered_resources = self.resources
+
+        html_content = "<html><head><title>Air Quality Resources</title></head><body>"
+        html_content += "<h1>Air Quality Educational Resources</h1>"
+        for resource in filtered_resources:
+            html_content += f"<h2>{resource['title']}</h2>"
+            html_content += f"<p>{resource['description']}</p>"
+            html_content += f"<a href='{resource['url']}'>{resource['url']}</a>"
+            html_content += f"<p>Category: {resource['category']}</p>"
+            html_content += "<hr>"
+
+        html_content += "</body></html>"
+        return html_content
+
+    def search_resources(self, keyword):
+        return [res for res in self.resources if keyword.lower() in res['title'].lower() or keyword.lower() in res['description'].lower()]
+
+
