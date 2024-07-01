@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Air Quality Search</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>Air Quality Search</h1>
+    <form action="{{ url_for('search') }}" method="post">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" id="username" name="username">
+      </div>
+      <div class="form-group">
+        <label for="location_type">Location Type</label>
+        <select class="form-control" id="location_type" name="location_type">
+          <option value="city">City</option>
+          <option value="zipcode">ZIP Code</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" class="form-control" id="location" name="location">
+      </div>
+      <div class="form-group">
+        <label for="date_from">Date From (YYYY-MM-DD)</label>
+        <input type="text" class="form-control" id="date_from" name="date_from">
+      </div>
+      <div class="form-group">
+        <label for="date_to">Date To (YYYY-MM-DD)</label>
+        <input type="text" class="form-control" id="date_to" name="date_to">
+      </div>
+      <div class="form-group">
+        <label for="limit">Limit</label>
+        <input type="text" class="form-control" id="limit" name="limit">
+      </div>
+      <div class="form-group">
+        <label for="parameter">Parameter</label>
+        <input type="text" class="form-control" id="parameter" name="parameter">
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <h2 class="mt-5">Feedback</h2>
+    <form action="{{ url_for('submit_feedback') }}" method="post">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" name="name">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="text" class="form-control" id="email" name="email">
+      </div>
+      <div class="form-group">
+        <label for="feedback_type">Feedback Type</label>
+        <select class="form-control" id="feedback_type" name="feedback_type">
+          <option value="General">General</option>
+          <option value="Bug Report">Bug Report</option>
+          <option value="Feature Request">Feature Request</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea class="form-control" id="message" name="message"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Feedback</button>
+    </form>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src
