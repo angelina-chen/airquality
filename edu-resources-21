@@ -1,0 +1,240 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+import requests
+import re
+from functools import lru_cache
+import json
+import threading
+
+class AirQualityEducation:
+    def __init__(self):
+        self.resources = []
+        self.explored_topics = []
+        self.cache = {}
+        self.preferences = {}
+
+    @lru_cache(maxsize=32)
+    def get_cached_data(self, url, params):
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        return response.json()
+
+    def store_search_in_cache(self, key, data):
+        self.cache[key] = data
+        with open("search_cache.json", "w") as cache_file:
+            json.dump(self.cache, cache_file)
+
+    def load_cache(self):
+        try:
+            with open("search_cache.json", "r") as cache_file:
+                self.cache = json.load(cache_file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.cache = {}
+
+    def save_preferences(self, username, location_type, location, date_from, date_to, limit, parameter):
+        self.preferences[username] = {
+            'location_type': location_type,
+            'location': location,
+            'date_from': date_from,
+            'date_to': date_to,
+            'limit': limit,
+            'parameter': parameter
+        }
+        with open("user_preferences.json", "w") as pref_file:
+            json.dump(self.preferences, pref_file)
+
+    def load_preferences(self):
+        try:
+            with open("user_preferences.json", "r") as pref_file:
+                self.preferences = json.load(pref_file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.preferences = {}
+
+    def get_user_preferences(self, username):
+        return self.preferences.get(username, {})
+
+    def custom_location_search(self, location_type, location_input, date_from, date_to, limit, parameter):
+        base_url = "https://api.openaq.org/v1/latest"
+        valid_location_types = ["city", "zipcode"]
+        
+        if location_type not in valid_location_types:
+            messagebox.showerror("Error", f"Invalid location type. Please choose from: {valid_location_types}")
+            return
+        
+        if location_type == "city" and not re.match("^[a-zA-Z\s]+$", location_input):
+            messagebox.showerror("Error", "Invalid city name. Please enter a valid city name using only letters and spaces.")
+            return
+        elif location_type == "zipcode" and not re.match("^\d{5}$", location_input):
+            messagebox.showerror("Error", "Invalid ZIP code. Please enter a valid 5-digit ZIP code.")
+            return
+
+        additional_params = {}
+        if date_from:
+            additional_params['date_from'] = date_from
+        if date_to:
+            additional_params['date_to'] = date_to
+        if limit.isdigit():
+            additional_params['limit'] = int(limit)
+        elif limit:
+            messagebox.showinfo("Info", "Invalid limit value. Defaulting to 100.")
+        
+        params = {'city': location_input} if location_type == "city" else {'location': location_input}
+        if parameter:
+            params['parameter'] = parameter
+        params.update(additional_params)
+        cache_key = json.dumps(params, sort_keys=True)
+
+        if cache_key in self.cache:
+            data = self.cache[cache_key]
+        else:
+            try:
+                data = self.get_cached_data(base_url, tuple(params.items()))
+                self.store_search_in_cache(cache_key, data)
+            except requests.exceptions.HTTPError as http_err:
+                messagebox.showerror("HTTP Error", f"HTTP error occurred: {http_err}")
+                return
+            except requests.exceptions.ConnectionError as conn_err:
+                messagebox.showerror("Connection Error", f"Connection error occurred: {conn_err}")
+                return
+            except requests.exceptions.Timeout as timeout_err:
+                messagebox.showerror("Timeout Error", f"Timeout error occurred: {timeout_err}")
+                return
+            except requests.exceptions.RequestException as req_err:
+                messagebox.showerror("Error", f"An error occurred: {req_err}")
+                return
+
+        if 'results' in data and len(data['results']) > 0:
+            result_str = f"Air quality data for {location_input}:\n"
+            for result in data['results']:
+                result_str += f"\nLocation: {result['location']}"
+                result_str += f"\nCity: {result['city']}"
+                result_str += f"\nCountry: {result['country']}"
+                for measurement in result['measurements']:
+                    if parameter and measurement['parameter'] != parameter:
+                        continue
+                    result_str += f"\n  Parameter: {measurement['parameter']}"
+                    result_str += f"\n  Value: {measurement['value']} {measurement['unit']}"
+                    result_str += f"\n  Last Updated: {measurement['lastUpdated']}"
+                result_str += "\n" + "-" * 50
+            messagebox.showinfo("Results", result_str)
+        else:
+            messagebox.showinfo("No Data", f"No air quality data found for {location_input}.")
+
+def run_gui():
+    def search():
+        location_type = location_type_var.get()
+        location_input = location_entry.get()
+        date_from = date_from_entry.get()
+        date_to = date_to_entry.get()
+        limit = limit_entry.get()
+        parameter = parameter_var.get()
+
+        progress.start()
+        search_thread = threading.Thread(target=perform_search, args=(location_type, location_input, date_from, date_to, limit, parameter))
+        search_thread.start()
+
+    def perform_search(location_type, location_input, date_from, date_to, limit, parameter):
+        air_quality_education.custom_location_search(location_type, location_input, date_from, date_to, limit, parameter)
+        progress.stop()
+
+    def save_preferences():
+        username = username_entry.get()
+        location_type = location_type_var.get()
+        location_input = location_entry.get()
+        date_from = date_from_entry.get()
+        date_to = date_to_entry.get()
+        limit = limit_entry.get()
+        parameter = parameter_var.get()
+
+        if not username:
+            messagebox.showerror("Error", "Username is required to save preferences.")
+            return
+        
+        air_quality_education.save_preferences(username, location_type, location_input, date_from, date_to, limit, parameter)
+        messagebox.showinfo("Success", "Preferences saved successfully.")
+
+    def load_preferences():
+        username = username_entry.get()
+        if not username:
+            messagebox.showerror("Error", "Username is required to load preferences.")
+            return
+
+        preferences = air_quality_education.get_user_preferences(username)
+        if not preferences:
+            messagebox.showinfo("Info", "No saved preferences found for this user.")
+            return
+
+        location_type_var.set(preferences.get('location_type', 'city'))
+        location_entry.delete(0, tk.END)
+        location_entry.insert(0, preferences.get('location', ''))
+        date_from_entry.delete(0, tk.END)
+        date_from_entry.insert(0, preferences.get('date_from', ''))
+        date_to_entry.delete(0, tk.END)
+        date_to_entry.insert(0, preferences.get('date_to', ''))
+        limit_entry.delete(0, tk.END)
+        limit_entry.insert(0, preferences.get('limit', ''))
+        parameter_var.set(preferences.get('parameter', ''))
+
+    air_quality_education = AirQualityEducation()
+    air_quality_education.load_cache()
+    air_quality_education.load_preferences()
+
+    root = tk.Tk()
+    root.title("Air Quality Search")
+    root.geometry("400x600")
+
+    frame = ttk.Frame(root, padding="10")
+    frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+    root.columnconfigure(0, weight=1)
+    root.rowconfigure(0, weight=1)
+
+    ttk.Label(frame, text="Air Quality Search", font=("Helvetica", 16)).grid(row=0, column=0, columnspan=2, pady=10)
+
+    ttk.Label(frame, text="Username:").grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
+    username_entry = ttk.Entry(frame)
+    username_entry.grid(row=1, column=1, padx=10, pady=5, sticky=tk.E)
+
+    ttk.Label(frame, text="Location Type:").grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
+    location_type_var = tk.StringVar(value="city")
+    location_type_menu = ttk.OptionMenu(frame, location_type_var, "city", "city", "zipcode")
+    location_type_menu.grid(row=2, column=1, padx=10, pady=5, sticky=tk.E)
+
+    ttk.Label(frame, text="Location:").grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
+    location_entry = ttk.Entry(frame)
+    location_entry.grid(row=3, column=1, padx=10, pady=5, sticky=tk.E)
+
+    ttk.Label(frame, text="Start Date (YYYY-MM-DD):").grid(row=4, column=0, padx=10, pady=5, sticky=tk.W)
+    date_from_entry = ttk.Entry(frame)
+    date_from_entry.grid(row=4, column=1, padx=10, pady=5, sticky=tk.E)
+
+    ttk.Label(frame, text="End Date (YYYY-MM-DD):").grid(row=5, column=0, padx=10, pady=5, sticky=tk.W)
+    date_to_entry = ttk.Entry(frame)
+    date_to_entry.grid(row=5, column=1, padx=10, pady=5, sticky=tk.E)
+
+    ttk.Label(frame, text="Limit:").grid(row=6, column=0, padx=10, pady=5, sticky=tk.W)
+    limit_entry = ttk.Entry(frame)
+    limit_entry.grid(row=6, column=1, padx=10, pady=5, sticky=tk.E)
+
+    ttk.Label(frame, text="Parameter:").grid(row=7, column=0, padx=10, pady=5, sticky=tk.W)
+    parameter_var = tk.StringVar(value="")
+    parameter_entry = ttk.Entry(frame, textvariable=parameter_var)
+    parameter_entry.grid(row=7, column=1, padx=10, pady=5, sticky=tk.E)
+
+    search_button = ttk.Button(frame, text="Search", command=search)
+    search_button.grid(row=8, column=0, columnspan=2, pady=10)
+
+    save_button = ttk.Button(frame, text="Save Preferences", command=save_preferences)
+    save_button.grid(row=9, column=0, columnspan=2, pady=10)
+
+    load_button = ttk.Button(frame, text="Load Preferences", command=load_preferences)
+    load_button.grid(row=10, column=0, columnspan=2, pady=10)
+
+    progress = ttk.Progressbar(frame, orient=tk.HORIZONTAL, length=200, mode='indeterminate')
+    progress.grid(row=11, column=0, columnspan=2, pady=10)
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    run_gui()
