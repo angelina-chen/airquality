@@ -1,0 +1,68 @@
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
+import json
+import os
+
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'
+
+# Load user data if it exists
+user_data_file_path = 'user_data.json'
+
+if os.path.exists(user_data_file_path):
+    with open(user_data_file_path, 'r') as f:
+        user_data = json.load(f)
+else:
+    user_data = {}
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form['username']
+    session['username'] = username
+    if username not in user_data:
+        user_data[username] = {'bio': '', 'favorite_searches': []}
+        with open(user_data_file_path, 'w') as f:
+            json.dump(user_data, f)
+    return redirect(url_for('dashboard'))
+
+@app.route('/dashboard')
+def dashboard():
+    username = session.get('username')
+    if not username:
+        flash("Please log in first.", "error")
+        return redirect(url_for('home'))
+    user_info = user_data.get(username, {'bio': '', 'favorite_searches': []})
+    return render_template('dashboard.html', username=username, user_info=user_info)
+
+@app.route('/update_bio', methods=['POST'])
+def update_bio():
+    username = session.get('username')
+    if not username:
+        flash("Please log in first.", "error")
+        return redirect(url_for('home'))
+    bio = request.form['bio']
+    user_data[username]['bio'] = bio
+    with open(user_data_file_path, 'w') as f:
+        json.dump(user_data, f)
+    flash("Bio updated successfully.", "success")
+    return redirect(url_for('dashboard'))
+
+@app.route('/save_search', methods=['POST'])
+def save_search():
+    username = session.get('username')
+    if not username:
+        flash("Please log in first.", "error")
+        return redirect(url_for('home'))
+    search_name = request.form['search_name']
+    search_query = request.form['search_query']
+    user_data[username]['favorite_searches'].append({'name': search_name, 'query': search_query})
+    with open(user_data_file_path, 'w') as f:
+        json.dump(user_data, f)
+    flash("Search saved successfully.", "success")
+    return redirect(url_for('dashboard'))
+
+if __name__ == "__main__":
+    app.run(debug=True)
