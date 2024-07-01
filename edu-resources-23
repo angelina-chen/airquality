@@ -1,0 +1,152 @@
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+import requests
+import re
+import json
+import os
+import datetime
+
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'
+
+# Load cache and preferences if they exist
+cache_file_path = 'search_cache.json'
+preferences_file_path = 'user_preferences.json'
+feedback_file_path = 'feedback.json'
+
+if os.path.exists(cache_file_path):
+    with open(cache_file_path, 'r') as f:
+        search_cache = json.load(f)
+else:
+    search_cache = {}
+
+if os.path.exists(preferences_file_path):
+    with open(preferences_file_path, 'r') as f:
+        user_preferences = json.load(f)
+else:
+    user_preferences = {}
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/search', methods=['POST'])
+def search():
+    location_type = request.form['location_type']
+    location_input = request.form['location']
+    date_from = request.form['date_from']
+    date_to = request.form['date_to']
+    limit = request.form['limit']
+    parameter = request.form['parameter']
+
+    # Validate input
+    if location_type not in ["city", "zipcode"]:
+        flash("Invalid location type.", "error")
+        return redirect(url_for('home'))
+    
+    if location_type == "city" and not re.match("^[a-zA-Z\s]+$", location_input):
+        flash("Invalid city name.", "error")
+        return redirect(url_for('home'))
+    elif location_type == "zipcode" and not re.match("^\d{5}$", location_input):
+        flash("Invalid ZIP code.", "error")
+        return redirect(url_for('home'))
+
+    params = {'city': location_input} if location_type == "city" else {'location': location_input}
+    if date_from:
+        params['date_from'] = date_from
+    if date_to:
+        params['date_to'] = date_to
+    if limit:
+        try:
+            params['limit'] = int(limit)
+        except ValueError:
+            flash("Invalid limit value. Defaulting to 100.", "info")
+            params['limit'] = 100
+    if parameter:
+        params['parameter'] = parameter
+
+    cache_key = json.dumps(params, sort_keys=True)
+    if cache_key in search_cache:
+        data = search_cache[cache_key]
+    else:
+        try:
+            response = requests.get("https://api.openaq.org/v1/latest", params=params)
+            response.raise_for_status()
+            data = response.json()
+            search_cache[cache_key] = data
+            with open(cache_file_path, 'w') as f:
+                json.dump(search_cache, f)
+        except requests.exceptions.RequestException as e:
+            flash(f"Error fetching data: {e}", "error")
+            return redirect(url_for('home'))
+
+    return render_template('results.html', data=data, location=location_input)
+
+@app.route('/preferences', methods=['POST'])
+def save_preferences():
+    username = request.form['username']
+    location_type = request.form['location_type']
+    location_input = request.form['location']
+    date_from = request.form['date_from']
+    date_to = request.form['date_to']
+    limit = request.form['limit']
+    parameter = request.form['parameter']
+
+    if not username:
+        flash("Username is required to save preferences.", "error")
+        return redirect(url_for('home'))
+
+    user_preferences[username] = {
+        'location_type': location_type,
+        'location': location_input,
+        'date_from': date_from,
+        'date_to': date_to,
+        'limit': limit,
+        'parameter': parameter
+    }
+    with open(preferences_file_path, 'w') as f:
+        json.dump(user_preferences, f)
+    
+    flash("Preferences saved successfully.", "success")
+    return redirect(url_for('home'))
+
+@app.route('/load_preferences', methods=['POST'])
+def load_preferences():
+    username = request.form['username']
+    if not username:
+        flash("Username is required to load preferences.", "error")
+        return redirect(url_for('home'))
+
+    preferences = user_preferences.get(username)
+    if not preferences:
+        flash("No saved preferences found for this user.", "info")
+        return redirect(url_for('home'))
+
+    return jsonify(preferences)
+
+@app.route('/feedback', methods=['POST'])
+def submit_feedback():
+    name = request.form['name']
+    email = request.form['email']
+    feedback_type = request.form['feedback_type']
+    message = request.form['message']
+
+    if not name or not email or not message:
+        flash("All fields are required.", "error")
+        return redirect(url_for('home'))
+
+    feedback_entry = {
+        "name": name,
+        "email": email,
+        "feedback_type": feedback_type,
+        "message": message,
+        "timestamp": datetime.datetime.now().isoformat()
+    }
+    with open(feedback_file_path, 'a') as f:
+        json.dump(feedback_entry, f)
+        f.write("\n")
+    
+    flash("Feedback submitted successfully.", "success")
+    return redirect(url_for('home'))
+
+if __name__ == "__main__":
+    app.run(debug=True)
