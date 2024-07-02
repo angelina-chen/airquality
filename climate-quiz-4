@@ -1,0 +1,50 @@
+import tkinter as tk
+from tkinter import messagebox
+import threading
+
+class QuizApp:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Air Quality and Climate Knowledge Quiz")
+
+        self.question_index = 0
+        self.score = 0
+        self.time_left = 10
+
+        self.questions = [
+            ("What is the main cause of air pollution?", ["Cars", "Factories", "Both", "None"], "Both"),
+            ("Which gas is primarily responsible for global warming?", ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], "Carbon Dioxide"),
+            ("What is the effect of deforestation?", ["Increased CO2", "Decreased CO2", "No change", "Increase in oxygen"], "Increased CO2"),
+            ("What is the main source of renewable energy?", ["Coal", "Oil", "Wind", "Natural Gas"], "Wind"),
+            ("Which is a greenhouse gas?", ["Methane", "Argon", "Helium", "Neon"], "Methane")
+        ]
+
+        self.frame = tk.Frame(self.master)
+        self.frame.pack(padx=10, pady=10)
+
+        self.score_label = tk.Label(self.frame, text=f"Score: {self.score}")
+        self.score_label.pack()
+
+        self.timer_label = tk.Label(self.frame, text=f"Time left: {self.time_left}")
+        self.timer_label.pack()
+
+        self.question_label = tk.Label(self.frame, text=self.questions[self.question_index][0])
+        self.question_label.pack()
+
+        self.options = tk.StringVar()
+        self.option_buttons = []
+        for option in self.questions[self.question_index][1]:
+            btn = tk.Radiobutton(self.frame, text=option, variable=self.options, value=option)
+            btn.pack(anchor='w')
+            self.option_buttons.append(btn)
+
+        self.submit_button = tk.Button(self.frame, text="Submit", command=self.check_answer)
+        self.submit_button.pack()
+
+        self.update_timer()
+
+    def update_timer(self):
+        if self.time_left > 0:
+            self.time_left -= 1
+            self
+
