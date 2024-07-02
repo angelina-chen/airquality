@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Your Score</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            margin-bottom: 10px;
+        }
+        select, button {
+            padding: 10px;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .social-media-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .social-media-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .twitter-button {
+            background-color: #1da1f2;
+            color: white;
+        }
+        .facebook-button {
+            background-color: #3b5998;
+            color: white;
+        }
+        .twitter-button:hover {
+            background-color: #0d8ce3;
+        }
+        .facebook-button:hover {
+            background-color: #2d4373;
+        }
+    </style>
+</head>
+<body>
+    <h1>Share Your Score</h1>
+    <p>Congratulations! You scored <strong>{{ score }}</strong> points!</p>
+    <form action="/post_to_social" method="post">
+        <input type="hidden" name="score" value="{{ score }}">
+        <label for="platform">Choose a platform:</label>
+        <select name="platform" id="platform">
+            <option value="Twitter">Twitter</option>
+            <option value="Facebook">Facebook</option>
+        </select>
+        <button type="submit">Share</button>
+    </form>
+    <div class="social-media-buttons">
+        <button class="social-media-button twitter-button" onclick="shareOnTwitter()">Share on Twitter</button>
+        <button class="social-media-button facebook-button" onclick="shareOnFacebook()">Share on Facebook</button>
+    </div>
+    <script>
+        function shareOnTwitter() {
+            const score = {{ score }};
+            const url = `https://twitter.com/intent/tweet?text=I just scored ${score} on the Air Quality and Climate Quiz! Can you beat my score?`;
+            window.open(url, '_blank');
+        }
+
+        function shareOnFacebook() {
+            const score = {{ score }};
+            const url = `https://www.facebook.com/sharer/sharer.php?u=I just scored ${score} on the Air Quality and Climate Quiz! Can you beat my score?`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
