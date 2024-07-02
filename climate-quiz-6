@@ -1,0 +1,106 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+class QuizApp:
+    def __init__(self, master, difficulty="medium"):
+        self.master = master
+        self.master.title("Air Quality and Climate Quiz")
+        self.difficulty = difficulty
+        self.questions = self.load_questions(difficulty)
+        self.score = 0
+        self.question_index = 0
+        self.options = tk.StringVar()
+        self.option_buttons = []
+
+        self.score_label = tk.Label(self.master, text=f"Score: {self.score}", font=("Arial", 14))
+        self.score_label.pack(pady=10)
+
+        self.question_label = tk.Label(self.master, text=self.questions[self.question_index][0], font=("Arial", 12), wraplength=400)
+        self.question_label.pack(pady=20)
+
+        for i, option in enumerate(self.questions[self.question_index][1]):
+            option_button = tk.Radiobutton(self.master, text=option, variable=self.options, value=option, font=("Arial", 12))
+            option_button.pack(pady=5)
+            self.option_buttons.append(option_button)
+
+        self.check_answer_button = tk.Button(self.master, text="Check Answer", command=self.check_answer, font=("Arial", 12))
+        self.check_answer_button.pack(pady=20)
+
+    def load_questions(self, difficulty):
+        if difficulty == "easy":
+            return [
+                ("What is the primary greenhouse gas emitted from human activities?", 
+                 ["Carbon dioxide", "Methane", "Nitrous oxide", "Ozone"], 
+                 "Carbon dioxide"),
+                ("Which pollutant is known for its harmful effects on respiratory health?", 
+                 ["Carbon monoxide", "Sulfur dioxide", "Particulate matter", "Lead"], 
+                 "Particulate matter"),
+                ("What is the main source of indoor air pollution in developing countries?", 
+                 ["Smoking", "Cooking with biomass fuels", "Vehicle emissions", "Industrial emissions"], 
+                 "Cooking with biomass fuels")
+            ]
+        elif difficulty == "medium":
+            return [
+                ("What does PM2.5 refer to in air quality monitoring?", 
+                 ["Particle size of 2.5 micrometers or smaller", "Precipitation measurement", 
+                  "Pressure measurement", "Pollen count"], 
+                 "Particle size of 2.5 micrometers or smaller"),
+                ("Which gas is a major contributor to acid rain?", 
+                 ["Carbon dioxide", "Nitrogen dioxide", "Sulfur dioxide", "Methane"], 
+                 "Sulfur dioxide"),
+                ("What is the ozone layer responsible for protecting us from?", 
+                 ["Ultraviolet radiation", "Infrared radiation", "Visible light", "X-rays"], 
+                 "Ultraviolet radiation")
+            ]
+        elif difficulty == "hard":
+            return [
+                ("Which greenhouse gas has the highest global warming potential per molecule?", 
+                 ["Methane", "Carbon dioxide", "Nitrous oxide", "Chlorofluorocarbons"], 
+                 "Chlorofluorocarbons"),
+                ("Which air pollutant primarily causes ground-level ozone formation?", 
+                 ["Nitrogen dioxide", "Volatile organic compounds", "Carbon monoxide", "Sulfur dioxide"], 
+                 "Volatile organic compounds"),
+                ("What is the term for the process of trapping heat in the Earth's atmosphere?", 
+                 ["Global warming", "Greenhouse effect", "Ozone depletion", "Thermal inversion"], 
+                 "Greenhouse effect")
+            ]
+        else:
+            raise ValueError("Invalid difficulty level")
+
+    def check_answer(self):
+        selected_option = self.options.get()
+        correct_answer = self.questions[self.question_index][2]
+
+        if selected_option == "":
+            messagebox.showerror("Error", "Please select an answer.")
+            return
+
+        if selected_option == correct_answer:
+            self.score += 1
+            self.score_label.config(text=f"Score: {self.score}")
+            messagebox.showinfo("Correct", "Well done! That's the correct answer.")
+        else:
+            messagebox.showwarning("Incorrect", f"Oops! The correct answer is: {correct_answer}")
+
+        self.question_index += 1
+        if self.question_index < len(self.questions):
+            self.update_question()
+        else:
+            messagebox.showinfo("Quiz Completed", f"Your final score is: {self.score}")
+            self.master.quit()
+
+    def update_question(self):
+        self.question_label.config(text=self.questions[self.question_index][0])
+        for i, option in enumerate(self.questions[self.question_index][1]):
+            self.option_buttons[i].config(text=option, value=option)
+        self.options.set("")  # Reset selected option
+
+# Example usage:
+if __name__ == "__main__":
+    root = tk.Tk()
+    quiz_app = QuizApp(root, difficulty="medium")
+    root.mainloop()
+
+
+
