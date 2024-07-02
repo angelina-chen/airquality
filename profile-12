@@ -1,0 +1,264 @@
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session, send_file
+import json
+import os
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+from datetime import datetime
+import csv
+
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'
+UPLOAD_FOLDER = 'static/profile_pics'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+user_data_file_path = 'user_data.json'
+
+if os.path.exists(user_data_file_path):
+    with open(user_data_file_path, 'r') as f:
+        user_data = json.load(f)
+else:
+    user_data = {}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def log_activity(username, activity):
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    user_data[username]['activity_logs'].append({'timestamp': timestamp, 'activity': activity})
+    with open(user_data_file_path, 'w') as f:
+        json.dump(user_data, f)
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        try:
+            username = request.form['username']
+            password = request.form['password']
+            if username in user_data:
+                flash("Username already exists.", "error")
+                return redirect(url_for('register'))
+            user_data[username] = {'password': generate_password_hash(password), 'bio': '', 'favorite_searches': [], 'profile_pic': '', 'activity_logs': [], 'educational_resources': []}
+            with open(user_data_file_path, 'w') as f:
+                json.dump(user_data, f)
+            log_activity(username, "Registered a new account.")
+            flash("Registration successful. Please log in.", "success")
+            return redirect(url_for('home'))
+        except Exception as e:
+            flash(f"An error occurred: {str(e)}", "error")
+            return redirect(url_for('register'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        username = request.form['username']
+        password = request.form['password']
+        if username not in user_data or not check_password_hash(user_data[username]['password'], password):
+            flash("Invalid username or password.", "error")
+            return redirect(url_for('home'))
+        session['username'] = username
+        log_activity(username, "Logged in.")
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('home'))
+
+@app.route('/dashboard')
+def dashboard():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        user_info = user_data.get(username, {'bio': '', 'favorite_searches': [], 'activity_logs': [], 'educational_resources': []})
+        return render_template('dashboard.html', username=username, user_info=user_info)
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('home'))
+
+@app.route('/update_bio', methods=['POST'])
+def update_bio():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        bio = request.form['bio']
+        user_data[username]['bio'] = bio
+        with open(user_data_file_path, 'w') as f:
+            json.dump(user_data, f)
+        log_activity(username, "Updated bio.")
+        flash("Bio updated successfully.", "success")
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('dashboard'))
+
+@app.route('/save_search', methods=['POST'])
+def save_search():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        search_name = request.form['search_name']
+        search_query = request.form['search_query']
+        search_details = request.form['search_details']
+        user_data[username]['favorite_searches'].append({'name': search_name, 'query': search_query, 'details': search_details})
+        with open(user_data_file_path, 'w') as f:
+            json.dump(user_data, f)
+        log_activity(username, f"Saved a search: {search_name}.")
+        flash("Search saved successfully.", "success")
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('dashboard'))
+
+@app.route('/delete_search', methods=['POST'])
+def delete_search():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        search_name = request.form['search_name']
+        user_data[username]['favorite_searches'] = [s for s in user_data[username]['favorite_searches'] if s['name'] != search_name]
+        with open(user_data_file_path, 'w') as f:
+            json.dump(user_data, f)
+        log_activity(username, f"Deleted a search: {search_name}.")
+        flash("Search deleted successfully.", "success")
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('dashboard'))
+
+@app.route('/upload_profile_pic', methods=['POST'])
+def upload_profile_pic():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        if 'profile_pic' not in request.files:
+            flash("No file part.", "error")
+            return redirect(url_for('dashboard'))
+        file = request.files['profile_pic']
+        if file.filename == '':
+            flash("No selected file.", "error")
+            return redirect(url_for('dashboard'))
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{username}_{filename}")
+            file.save(file_path)
+            user_data[username]['profile_pic'] = file_path
+            with open(user_data_file_path, 'w') as f:
+                json.dump(user_data, f)
+            log_activity(username, "Uploaded a profile picture.")
+            flash("Profile picture uploaded successfully.", "success")
+        else:
+            flash("File type not allowed.", "error")
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('dashboard'))
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        
+        if request.method == 'POST':
+            new_username = request.form.get('new_username')
+            new_password = request.form.get('new_password')
+            if new_username and new_username != username:
+                if new_username in user_data:
+                    flash("Username already exists.", "error")
+                    return redirect(url_for('settings'))
+                user_data[new_username] = user_data.pop(username)
+                session['username'] = new_username
+                log_activity(new_username, f"Changed username from {username} to {new_username}.")
+                username = new_username
+            if new_password:
+                user_data[username]['password'] = generate_password_hash(new_password)
+                log_activity(username, "Updated password.")
+            with open(user_data_file_path, 'w') as f:
+                json.dump(user_data, f)
+            flash("Settings updated successfully.", "success")
+            return redirect(url_for('dashboard'))
+
+        user_info = user_data.get(username, {'bio': '', 'favorite_searches': [], 'profile_pic': ''})
+        return render_template('settings.html', username=username, user_info=user_info)
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('home'))
+
+@app.route('/save_resource', methods=['POST'])
+def save_resource():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        resource_name = request.form['resource_name']
+        resource_link = request.form['resource_link']
+        resource_description = request.form['resource_description']
+        user_data[username]['educational_resources'].append({'name': resource_name, 'link': resource_link, 'description': resource_description})
+        with open(user_data_file_path, 'w') as f:
+            json.dump(user_data, f)
+        log_activity(username, f"Saved a resource: {resource_name}.")
+        flash("Resource saved successfully.", "success")
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('dashboard'))
+
+@app.route('/delete_resource', methods=['POST'])
+def delete_resource():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        resource_name = request.form['resource_name']
+        user_data[username]['educational_resources'] = [r for r in user_data[username]['educational_resources'] if r['name'] != resource_name]
+        with open(user_data_file_path, 'w') as f:
+            json.dump(user_data, f)
+        log_activity(username, f"Deleted a resource: {resource_name}.")
+        flash("Resource deleted successfully.", "success")
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('dashboard'))
+
+@app.route('/export_resources', methods=['GET'])
+def export_resources():
+    try:
+        username = session.get('username')
+        if not username:
+            flash("Please log in first.", "error")
+            return redirect(url_for('home'))
+        
+        # Create the export file path
+        export_file_path = f'{username}_resources.json'
+        
+        # Save the user's educational resources to a JSON file
+        with open(export_file_path, 'w') as f:
+            json.dump(user_data[username]['educational_resources'], f)
+        
+        log_activity(username, "Exported educational resources.")
+        flash("Resources exported successfully.", "success")
+        return send_file(export_file_path, as_attachment=True)
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('dashboard'))
+
+if __name__ == "__main__":
+    app.run(debug=True)
