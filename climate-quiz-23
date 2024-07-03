@@ -1,0 +1,120 @@
+<script>
+    const quizContainer = document.getElementById('quiz');
+    const nextButton = document.getElementById('next');
+    const feedbackContainer = document.getElementById('feedback');
+    const progressBar = document.getElementById('progress');
+
+    const questions = [
+        {
+            question: "What does PM2.5 refer to?",
+            options: [
+                "Particulate Matter with diameter less than 2.5 micrometers",
+                "Particulate Matter with diameter less than 10 micrometers",
+                "Particulate Matter with diameter less than 5 micrometers",
+                "Particulate Matter with diameter less than 1 micrometer"
+            ],
+            correctAnswerIndex: 0,
+            explanation: "PM2.5 refers to particulate matter with a diameter of less than 2.5 micrometers, which can be harmful to human health."
+        },
+        {
+            question: "Which gas is a major component of smog?",
+            options: [
+                "Carbon Monoxide",
+                "Nitrogen Dioxide",
+                "Ozone",
+                "Sulfur Dioxide"
+            ],
+            correctAnswerIndex: 2,
+            explanation: "Ozone is a major component of smog and can cause various health issues."
+        },
+        {
+            question: "What does AQI stand for?",
+            options: [
+                "Air Quality Index",
+                "Air Quantity Indicator",
+                "Atmospheric Quality Index",
+                "Airborne Quality Indicator"
+            ],
+            correctAnswerIndex: 0,
+            explanation: "AQI stands for Air Quality Index, which measures the quality of the air and its impact on human health."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function displayQuestion(index) {
+        quizContainer.innerHTML = '';
+        feedbackContainer.innerHTML = '';
+        const questionObj = questions[index];
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question');
+        questionDiv.innerHTML = `<p><strong>Question ${index + 1}:</strong> ${questionObj.question}</p>`;
+        quizContainer.appendChild(questionDiv);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.classList.add('options');
+        questionObj.options.forEach((opt, i) => {
+            const optionHTML = `
+                <input type="radio" id="q${index}_option${i}" name="q${index}" value="${i}">
+                <label for="q${index}_option${i}">${opt}</label>
+            `;
+            optionsDiv.innerHTML += optionHTML;
+        });
+        quizContainer.appendChild(optionsDiv);
+
+        // Fix: Properly add haptic feedback on touch
+        optionsDiv.addEventListener('touchstart', function() {
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+        });
+    }
+
+    function showNextQuestion() {
+        const selectedOption = document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`);
+        if (selectedOption) {
+            const answerIndex = parseInt(selectedOption.value);
+            if (answerIndex === questions[currentQuestionIndex].correctAnswerIndex) {
+                score++;
+                feedbackContainer.classList.remove('incorrect');
+                feedbackContainer.classList.add('correct');
+                feedbackContainer.innerHTML = "Correct! " + questions[currentQuestionIndex].explanation;
+            } else {
+                feedbackContainer.classList.remove('correct');
+                feedbackContainer.classList.add('incorrect');
+                feedbackContainer.innerHTML = "Incorrect. " + questions[currentQuestionIndex].explanation;
+            }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                setTimeout(() => {
+                    displayQuestion(currentQuestionIndex);
+                    updateProgressBar();
+                }, 2000);
+            } else {
+                setTimeout(showResults, 2000);
+            }
+        } else {
+            alert("Please select an answer before proceeding.");
+        }
+    }
+
+    function updateProgressBar() {
+        const progress = ((currentQuestionIndex / questions.length) * 100).toFixed(2);
+        progressBar.style.width = `${progress}%`;
+    }
+
+    function showResults() {
+        quizContainer.innerHTML = `
+            <h2>Your Score: ${score}/${questions.length}</h2>
+            <p>Thank you for participating in the Air Quality Quiz!</p>
+        `;
+        nextButton.style.display = 'none';
+    }
+
+    nextButton.addEventListener('click', showNextQuestion);
+
+    displayQuestion(currentQuestionIndex);
+    updateProgressBar();
+</script>
+
