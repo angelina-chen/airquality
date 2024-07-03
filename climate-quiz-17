@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .question {
+            margin-bottom: 10px;
+        }
+        .options {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Air Quality Quiz</h1>
+    <div id="quiz">
+    </div>
+
+    <script>
+        // Example of how questions and options could be rendered using JavaScript
+        const quizContainer = document.getElementById('quiz');
+        const questions = [
+            {
+                question: "What does PM2.5 refer to?",
+                options: [
+                    "Particulate Matter with diameter less than 2.5 micrometers",
+                    "Particulate Matter with diameter less than 10 micrometers",
+                    "Particulate Matter with diameter less than 5 micrometers",
+                    "Particulate Matter with diameter less than 1 micrometer"
+                ]
+            },
+            {
+                question: "Which gas is a major component of smog?",
+                options: [
+                    "Carbon Monoxide",
+                    "Nitrogen Dioxide",
+                    "Ozone",
+                    "Sulfur Dioxide"
+                ]
+            },
+            {
+                question: "What does AQI stand for?",
+                options: [
+                    "Air Quality Index",
+                    "Air Quantity Indicator",
+                    "Atmospheric Quality Index",
+                    "Airborne Quality Indicator"
+                ]
+            }
+        ];
+
+        // Function to display quiz questions and options
+        function displayQuiz() {
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+                questionDiv.innerHTML = `<p><strong>Question ${index + 1}:</strong> ${q.question}</p>`;
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('options');
+                q.options.forEach((opt, i) => {
+                    optionsDiv.innerHTML += `<input type="radio" id="q${index}_option${i}" name="q${index}" value="${i}">
+                                             <label for="q${index}_option${i}">${opt}</label><br>`;
+                });
+
+                questionDiv.appendChild(optionsDiv);
+                quizContainer.appendChild(questionDiv);
+            });
+        }
+
+        // Call the function to display the quiz when the page loads
+        displayQuiz();
+    </script>
+</body>
+</html>
+
