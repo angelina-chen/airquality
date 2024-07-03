@@ -1,0 +1,118 @@
+# html user data 
+
+# index
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Welcome to the Quiz App</h1>
+        <p><a href="/quiz" class="btn btn-primary">Start Quiz</a></p>
+        <p><a href="/stats" class="btn btn-secondary">View Stats</a></p>
+    </div>
+</body>
+</html>
+
+# quiz
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Quiz</h1>
+        <div id="quiz-container"></div>
+        <p><a href="/" class="btn btn-secondary">Back to Home</a></p>
+    </div>
+    <script>
+        const questions = {{ questions|tojson }};
+        let currentQuestionIndex = 0;
+
+        function displayQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                const options = question.options.map((option, index) => `
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="options" id="option${index}" value="${option}">
+                        <label class="form-check-label" for="option${index}">${option}</label>
+                    </div>
+                `).join('');
+
+                document.getElementById('quiz-container').innerHTML = `
+                    <h3>${question.question}</h3>
+                    <form id="quiz-form">
+                        ${options}
+                        <button type="button" class="btn btn-primary mt-3" onclick="submitAnswer()">Submit</button>
+                    </form>
+                `;
+            } else {
+                document.getElementById('quiz-container').innerHTML = `
+                    <h3>Quiz Completed</h3>
+                    <p>Thank you for participating!</p>
+                    <p><a href="/stats" class="btn btn-primary">View Stats</a></p>
+                `;
+            }
+        }
+
+        function submitAnswer() {
+            const selectedOption = document.querySelector('input[name="options"]:checked').value;
+            fetch('/submit_answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    question_index: currentQuestionIndex,
+                    selected_option: selectedOption
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`Your answer is ${data.result}`);
+                currentQuestionIndex++;
+                displayQuestion();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', displayQuestion);
+    </script>
+</body>
+</html>
+
+# stats
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stats</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">User Quiz Performance</h1>
+        <div id="chart"></div>
+        <p><a href="/" class="btn btn-secondary">Back to Home</a></p>
+    </div>
+    <script>
+        const graphJSON = {{ graph_json|safe }};
+        Plotly.newPlot('chart', JSON.parse(graphJSON));
+    </script>
+</body>
+</html>
+
