@@ -1,0 +1,79 @@
+from flask import Flask, render_template, request, jsonify
+import plotly
+import plotly.graph_objs as go
+import json
+
+app = Flask(__name__)
+
+# In-memory storage for user responses
+user_responses = {
+    'correct': 0,
+    'incorrect': 0
+}
+
+# Sample questions categorized by difficulty
+questions = {
+    "easy": [
+        {"question": "What is the most common air pollutant?", "options": ["CO2", "Oxygen", "Nitrogen", "Argon"], "answer": "CO2"},
+        {"question": "Which of the following is a greenhouse gas?", "options": ["Oxygen", "Hydrogen", "Methane", "Helium"], "answer": "Methane"},
+    ],
+    "medium": [
+        {"question": "What is the main source of air pollution in urban areas?", "options": ["Factories", "Cars", "Farms", "Forests"], "answer": "Cars"},
+        {"question": "What is PM2.5?", "options": ["Particulate matter smaller than 2.5 micrometers", "Pollution measure index", "Ozone layer", "Carbon dioxide level"], "answer": "Particulate matter smaller than 2.5 micrometers"},
+    ],
+    "hard": [
+        {"question": "Which international agreement aims to combat climate change by reducing greenhouse gas emissions?", "options": ["Kyoto Protocol", "Paris Agreement", "Montreal Protocol", "Basel Convention"], "answer": "Paris Agreement"},
+        {"question": "What is the primary component of smog?", "options": ["Ozone", "Carbon monoxide", "Sulfur dioxide", "Nitrogen oxide"], "answer": "Ozone"},
+    ]
+}
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/quiz')
+def quiz():
+    return render_template('quiz.html')
+
+@app.route('/start_quiz', methods=['POST'])
+def start_quiz():
+    data = request.get_json()
+    difficulty = data.get('difficulty', 'easy')
+    selected_questions = questions.get(difficulty, questions['easy'])
+    return jsonify(questions=selected_questions)
+
+@app.route('/submit_answer', methods=['POST'])
+def submit_answer():
+    data = request.get_json()
+    question_index = data['question_index']
+    selected_option = data['selected_option']
+    difficulty = data.get('difficulty', 'easy')
+    correct_answer = questions[difficulty][question_index]['answer']
+    
+    if selected_option == correct_answer:
+        user_responses['correct'] += 1
+        result = "correct"
+    else:
+        user_responses['incorrect'] += 1
+        result = "incorrect"
+    
+    return jsonify(result=result)
+
+@app.route('/stats')
+def stats():
+    correct = user_responses['correct']
+    incorrect = user_responses['incorrect']
+    
+    # Create Plotly figure
+    fig = go.Figure(data=[
+        go.Pie(labels=['Correct', 'Incorrect'], values=[correct, incorrect], hole=.3)
+    ])
+    
+    fig.update_layout(title_text="User Quiz Performance")
+
+    graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    
+    return render_template('stats.html', graph_json=graph_json)
+
+if __name__ == '__main__':
+    app.run(debug=True)
