@@ -1,0 +1,64 @@
+import random
+import time
+
+# List of questions with format (question, options, correct_answer_index, explanation)
+questions = [
+    ("What does PM2.5 refer to?", 
+     ["Particulate Matter with diameter less than 2.5 micrometers",
+      "Particulate Matter with diameter less than 10 micrometers",
+      "Particulate Matter with diameter less than 5 micrometers",
+      "Particulate Matter with diameter less than 1 micrometer"],
+     0,
+     "PM2.5 refers to Particulate Matter with diameter less than 2.5 micrometers, which can penetrate deep into the respiratory system."),
+    
+    ("Which gas is a major component of smog?", 
+     ["Carbon Monoxide",
+      "Nitrogen Dioxide",
+      "Ozone",
+      "Sulfur Dioxide"],
+     2,
+     "Ozone is a major component of smog, formed by the reaction of sunlight with pollutants like nitrogen oxides."),
+    
+    ("What does AQI stand for?", 
+     ["Air Quality Index",
+      "Air Quantity Indicator",
+      "Atmospheric Quality Index",
+      "Airborne Quality Indicator"],
+     0,
+     "AQI stands for Air Quality Index, a measure used to communicate how polluted the air is and what associated health effects might be a concern.")
+]
+
+def start_quiz():
+    """Starts the air quality quiz."""
+    random.shuffle(questions)  # Shuffle the questions for random order
+    total_questions = len(questions)
+    correct_answers = 0
+    start_time = time.time()
+
+    for i, (question, options, correct_answer_index, explanation) in enumerate(questions, start=1):
+        print(f"Question {i}/{total_questions}: {question}")
+        random.shuffle(options)  # Shuffle the options for each question
+        for j, option in enumerate(options, start=1):
+            print(f"{j}. {option}")
+        answer = input("Your answer (enter the option number): ")
+        
+        try:
+            answer_index = int(answer) - 1
+            if 0 <= answer_index < len(options):
+                if answer_index == correct_answer_index:
+                    print("Correct!")
+                    correct_answers += 1
+                else:
+                    print(f"Incorrect. Correct answer: {options[correct_answer_index]}")
+                print(f"Explanation: {explanation}\n")
+            else:
+                print("Invalid answer index. Please enter a valid option number.\n")
+        except ValueError:
+            print("Invalid input. Please enter a number corresponding to your answer choice.\n")
+
+    end_time = time.time()
+    total_time = end_time - start_time
+    print(f"Quiz completed in {total_time:.2f} seconds.")
+    print(f"Your score: {correct_answers}/{total_questions}")
+
+start_quiz()
