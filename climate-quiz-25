@@ -1,0 +1,30 @@
+<script>
+    function displayQuestion(index) {
+        quizContainer.innerHTML = '';
+        feedbackContainer.innerHTML = '';
+        const questionObj = questions[index];
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question');
+        questionDiv.innerHTML = `<p><strong>Question ${index + 1}:</strong> ${questionObj.question}</p>`;
+        quizContainer.appendChild(questionDiv);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.classList.add('options');
+        questionObj.options.forEach((opt, i) => {
+            const optionHTML = `
+                <input type="radio" id="q${index}_option${i}" name="q${index}" value="${i}">
+                <label for="q${index}_option${i}">${opt}</label>
+            `;
+            optionsDiv.innerHTML += optionHTML;
+        });
+        quizContainer.appendChild(optionsDiv);
+
+        // Properly add haptic feedback on touch
+        optionsDiv.addEventListener('touchstart', function(event) {
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+            console.log('Touch event detected:', event);
+        });
+    }
+</script>
