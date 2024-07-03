@@ -1,0 +1,45 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_mail import Mail, Message
+
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'
+
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.example.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your-email@example.com'
+app.config['MAIL_PASSWORD'] = 'your-password'
+
+mail = Mail(app)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/quiz')
+def quiz():
+    return render_template('quiz.html')
+
+@app.route('/feedback')
+def feedback():
+    return render_template('feedback.html')
+
+@app.route('/submit_feedback', methods=['POST'])
+def submit_feedback():
+    name = request.form['name']
+    email = request.form['email']
+    feedback = request.form['feedback']
+
+    # Sending feedback via email
+    msg = Message(subject="New Feedback from Quiz App",
+                  sender=app.config['MAIL_USERNAME'],
+                  recipients=[app.config['MAIL_USERNAME']],
+                  body=f"Name: {name}\nEmail: {email}\n\nFeedback:\n{feedback}")
+    mail.send(msg)
+
+    flash('Thank you for your feedback!', 'success')
+    return redirect(url_for('feedback'))
+
+if __name__ == '__main__':
+    app.run(debug=True)
