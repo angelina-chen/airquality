@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .quiz-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            margin: 20px;
+        }
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .options {
+            margin-bottom: 20px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .options input[type="radio"] {
+            display: none;
+        }
+        .options input[type="radio"]:checked + label {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+        }
+        .feedback {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .feedback.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        @media (max-width: 600px) {
+            .quiz-container {
+                width: 100%;
+                padding: 10px;
+            }
+            .btn {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container" role="main">
+        <div class="quiz-header">
+            <h1 id="quiz-title">Air Quality Quiz</h1>
+        </div>
+        <div id="quiz">
+            <!-- Questions and options will be dynamically added here -->
+        </div>
+        <div id="feedback" class="feedback" role="alert" aria-live="assertive"></div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <button class="btn" id="next" aria-label="Next question">Next</button>
+    </div>
+
+    <script>
+        const quizContainer = document.getElementById('quiz');
+        const nextButton = document.getElementById('next');
+        const feedbackContainer = document.getElementById('feedback');
+        const progressBar = document.getElementById('progress');
+
+        const questions = [
+            {
+                question: "What does PM2.5 refer to?",
+                options: [
+                    "Particulate Matter with diameter less than 2.5 micrometers",
+                    "Particulate Matter with diameter less than 10 micrometers",
+                    "Particulate Matter with diameter less than 5 micrometers",
+                    "Particulate Matter with diameter less than 1 micrometer"
+                ],
+                correctAnswerIndex: 0,
+                explanation: "PM2.5 refers to particulate matter with a diameter of less than 2.5 micrometers, which can be harmful to human health."
+            },
+            {
+                question: "Which gas is a major component of smog?",
+                options: [
+                    "Carbon Monoxide",
+                    "Nitrogen Dioxide",
+                    "Ozone",
+                    "Sulfur Dioxide"
+                ],
+                correctAnswerIndex: 2,
+                explanation: "Ozone is a major component of smog and can cause various health issues."
+            },
+            {
+                question: "What does AQI stand for?",
+                options: [
+                    "Air Quality Index",
+                    "Air Quantity Indicator",
+                    "Atmospheric Quality Index",
+                    "Airborne Quality Indicator"
+                ],
+                correctAnswerIndex: 0,
+                explanation: "AQI stands for Air Quality Index, which measures the quality of the air and its impact on human health."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function displayQuestion(index) {
+            try {
+                quizContainer.innerHTML = '';
+                feedbackContainer.innerHTML = '';
+                if (index >= questions.length || index < 0) {
+                    throw new Error('Question index out of bounds');
+                }
+                const questionObj = questions[index];
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+                questionDiv.innerHTML = `<p id="question-${index}" tabindex="-1"><strong>Question ${index + 1}:</strong> ${questionObj.question}</p>`;
+                quizContainer.appendChild(questionDiv);
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('options');
+                questionObj.options.forEach((opt, i) => {
+                    const optionHTML = `
+                        <input type="radio" id="q${index}_option${i}" name="q${index}" value="${i}" aria-labelledby="question-${index}">
+                        <label for="q${index}_option${i}">${opt}</label>
+                    `;
+                    optionsDiv.innerHTML += optionHTML;
+                });
+                quizContainer.appendChild(optionsDiv);
+                document.getElementById(`question-${index}`).focus();
+            } catch (error) {
+                displayError(error.message);
+            }
+        }
+
+        function showNextQuestion() {
+            try {
+                const selectedOption = document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`);
+                if (!selectedOption) {
+                    throw new Error("Please select an answer before proceeding.");
+                }
+
+                const answerIndex = parseInt(selectedOption.value);
+                if (answerIndex === questions[currentQuestionIndex].correctAnswerIndex) {
+                    score++;
+                    feedbackContainer.classList.remove('incorrect');
+                    feedbackContainer.classList.add('correct');
+                    feedbackContainer.innerHTML = "Correct! " + questions[currentQuestionIndex].explanation;
+                } else {
+                    feedbackContainer.classList.remove('correct');
+                    feedbackContainer.classList.add('incorrect');
+                    feedbackContainer.innerHTML = "Incorrect. " + questions[currentQuestionIndex].explanation;
+                }
+
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    setTimeout(() => {
+                        displayQuestion(currentQuestionIndex);
+                        updateProgressBar();
+                    }, 2000);
+                } else {
+                    setTimeout(showResults, 2000);
+                }
+            } catch (error) {
+                displayError(error.message);
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex / questions.length) * 100).toFixed(2);
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showResults() {
+            try {
+                quizContainer.innerHTML = `
+                    <h2>Your Score: ${score}/${questions.length}</h2>
+                    <p>Thank you for participating in the Air Quality Quiz!</p>
+                `;
+                nextButton.style.display = 'none';
+            } catch (error) {
+                displayError(error.message);
+            }
+        }
+
+        function displayError(errorMessage) {
+            feedbackContainer.classList.add('error');
+            feedbackContainer.innerHTML = `Error: ${errorMessage}`;
+        }
+
+        nextButton.addEventListener('click', showNextQuestion);
+
+        displayQuestion(currentQuestionIndex);
+        updateProgressBar();
+    </script>
+</body>
+</html>
